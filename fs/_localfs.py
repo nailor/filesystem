@@ -41,7 +41,7 @@ class path(object):
     def child(self, *segments):
         p = self
         for segment in segments:
-            if '/' in segment:
+            if u'/' in segment:
                 raise InsecurePathError(
                       'child name contains directory separator')
             # this may be too naive
