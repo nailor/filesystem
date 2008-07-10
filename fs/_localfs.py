@@ -18,7 +18,10 @@ class path(object):
         self._pathname = pathname
 
     def __str__(self):
-        return self._pathname
+        return str(self._pathname)
+
+    def __unicode__(self):
+        return unicode(self._pathname)
 
     def join(self, relpath):
         if relpath.startswith('/'):
