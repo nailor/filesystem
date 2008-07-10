@@ -140,3 +140,7 @@ class path(object):
     def size(self):
         return self.stat().st_size
 
+    def unlink(self):
+        os.unlink(self._pathname)
+
+    remove = unlink

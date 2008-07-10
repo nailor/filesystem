@@ -132,3 +132,17 @@ class OperationsMixin(object):
         with c.open() as f:
             got = f.read()
         eq(got, 'bar')
+
+    def test_unlink_simple(self):
+        a = self.path.child('foo')
+        with a.open('w') as f:
+            f.write('bar')
+        a.unlink()
+        eq(list(self.path), [])
+
+    def test_remove_simple(self):
+        a = self.path.child('foo')
+        with a.open('w') as f:
+            f.write('bar')
+        a.remove()
+        eq(list(self.path), [])
