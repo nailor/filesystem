@@ -22,7 +22,6 @@ def test_bad_slash():
         str(e),
         'child name contains directory separator',
         )
-
     ## Exception should be raised even if it's not evil (?)
     e = assert_raises(fs.InsecurePathError, fs.root.child, u'notsoevil/')
 
@@ -37,3 +36,10 @@ def test_bad_dotdot():
     assert_raises(fs.InsecurePathError, fs.root.child, u'../')
     assert_raises(fs.InsecurePathError, fs.root.child, u'..//')
     assert_raises(fs.InsecurePathError, fs.root.child, u'..//..')
+
+def test_new_object():
+    p = fs.path(u"/")
+    c = p.child(u"segment1", u"segment2")
+    assert p is not c
+    eq(unicode(p), u"/")
+    eq(unicode(c), u"/segment1/segment2")

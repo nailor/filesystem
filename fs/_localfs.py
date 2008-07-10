@@ -24,7 +24,7 @@ class NoDirectoryError(Exception):
     pass
 
 
-class CrossdeviceRenameError(Exception):
+class CrossDeviceRenameError(Exception):
     """
     Rename old and new paths are not on the same filesystem.
 
@@ -86,6 +86,9 @@ class path(object):
             yield self.child(item)
 
     def child(self, *segments):
+        """
+        Return a child of the ``path`` object.
+        """
         p = self
         for segment in segments:
             if u'/' in segment:
@@ -138,7 +141,7 @@ class path(object):
         Rename this path. Mutates the object.
         """
         if not isinstance(newpath, path):
-            raise CrossdeviceRenameError()
+            raise CrossDeviceRenameError()
         os.rename(self._pathname, newpath._pathname)
         self._pathname = newpath._pathname
 

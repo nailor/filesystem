@@ -14,6 +14,6 @@ def test_rename_bad_string():
     parent = fs.path(tmp)
     old = parent.join(u'foo')
     assert_raises(
-        fs.CrossdeviceRenameError,
+        fs.CrossDeviceRenameError,
         old.rename, 'foo')
     eq(fs.root, fs.root.parent())
