@@ -46,7 +46,7 @@ def test_stat_size():
     eq(p.stat().st_size, len(s))
 
 
-def test_isdir():
+def test_dir():
     temp_dir = maketemp()
 
     p = fs.path(temp_dir)
@@ -55,7 +55,7 @@ def test_isdir():
     assert(p.islink() is False)
 
 
-def test_isfile():
+def test_file():
     temp_dir = maketemp()
     foo = os.path.join(temp_dir, u'foo')
     with open(foo, 'w') as f:
