@@ -45,7 +45,7 @@ class path(object):
                 raise InsecurePathError(
                       'child name contains directory separator')
             # this may be too naive
-            if segment == '..':
+            if segment == u'..':
                 raise InsecurePathError(
                       'child trying to climb out of directory')
             p = p.join(segment)
