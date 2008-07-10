@@ -5,16 +5,26 @@ from nose.tools import (
 import fs
 
 def test_str_simple():
-    p = fs.path('/foo')
+    p = fs.path(u'/foo')
     got = str(p)
-    eq(got, '/foo')
+    eq(got, u'/foo')
 
 def test_root():
     root = fs.root
     slash = str(root)
-    eq(slash, '/')
+    eq(slash, u'/')
 
-def test_join():
-    path = fs.root.join('/tmp')
-    eq(str(path), '/tmp')
+def test_with_slash():
+    path = fs.root.join(u'tmp')
+    eq(str(path), u'/tmp')
+
+def test_without_slash():
+    path = fs.root.join(u'tmp')
+    eq(str(path), u'/tmp')
     
+def test_side_effects():
+    ## join should return a new object, and not modify the existing
+    path = fs.root
+    ret=path.join(u'tmp')
+    eq(str(path), u'/')
+    assert id(path) != id(ret)
