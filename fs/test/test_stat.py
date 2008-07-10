@@ -14,7 +14,7 @@ def test_stat_isdir():
 
     p = fs.path(temp_dir)
     s = p.stat()
-    assert(stat.S_ISDIR(s.st_mode))
+    assert(stat.S_ISDIR(s.st_mode) is True)
 
 
 def test_stat_isreg():
@@ -25,7 +25,7 @@ def test_stat_isreg():
 
     p = fs.path(foo)
     s = p.stat()
-    assert(stat.S_ISREG(s.st_mode))
+    assert(stat.S_ISREG(s.st_mode) is True)
 
 
 def test_stat_missing_file():
