@@ -161,5 +161,9 @@ class OperationsMixin(object):
         e = assert_raises(OSError, self.path.child('foo').mkdir)
         eq(e.errno, errno.EEXIST)
 
+
+        ## but one can ask for this error not to be raised
+        p = self.path.child('foo').mkdir(dir_may_exist=True)
+
         
         
