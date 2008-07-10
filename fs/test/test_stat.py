@@ -27,6 +27,10 @@ def test_stat_isreg():
     s = p.stat()
     assert(stat.S_ISREG(s.st_mode) is True)
 
+def test_stat_exists_missing():
+    temp_dir = maketemp()
+    p = fs.path(temp_dir).child('foo')
+    assert(p.exists() is False)
 
 def test_stat_missing_file():
     temp_dir = maketemp()
@@ -50,6 +54,7 @@ def test_dir():
     temp_dir = maketemp()
 
     p = fs.path(temp_dir)
+    assert(p.exists() is True)
     assert(p.isdir() is True)
     assert(p.isfile() is False)
     assert(p.islink() is False)
@@ -62,6 +67,7 @@ def test_file():
         f.write('bar')
 
     p = fs.path(foo)
+    assert(p.exists() is True)
     assert(p.isfile() is True)
     assert(p.isdir() is False)
     assert(p.islink() is False)

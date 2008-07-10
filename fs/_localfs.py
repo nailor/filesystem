@@ -1,3 +1,4 @@
+import errno
 import os
 import stat
 import errno
@@ -147,6 +148,16 @@ class path(object):
 
     def stat(self):
         return os.stat(self._pathname)
+
+    def exists(self):
+        try:
+            self.stat()
+        except OSError, e:
+            if e.errno == errno.ENOENT:
+                return False
+            else:
+                raise
+        return True
 
     def isdir(self):
         return stat.S_ISDIR(self.stat().st_mode)
