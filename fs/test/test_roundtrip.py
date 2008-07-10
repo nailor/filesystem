@@ -61,6 +61,42 @@ class OperationsMixin(object):
         b = 'foo'
         assert a != b, '%r should not be equal to %r' % (a, b)
 
+    def test_lt_positive(self):
+        assert self.path.child('a') < self.path.child('b')
+
+    def test_lt_negative(self):
+        assert not self.path.child('b') < self.path.child('a')
+
+    def test_lt_negative_equal(self):
+        assert not self.path.child('a') < self.path.child('a')
+
+    def test_le_positive(self):
+        assert self.path.child('a') <= self.path.child('b')
+
+    def test_le_positive_equal(self):
+        assert self.path.child('a') <= self.path.child('a')
+
+    def test_le_negative(self):
+        assert not self.path.child('b') <= self.path.child('a')
+
+    def test_gt_positive(self):
+        assert self.path.child('b') > self.path.child('a')
+
+    def test_gt_negative(self):
+        assert not self.path.child('a') > self.path.child('b')
+
+    def test_gt_negative_equal(self):
+        assert not self.path.child('a') > self.path.child('a')
+
+    def test_ge_positive(self):
+        assert self.path.child('b') >= self.path.child('a')
+
+    def test_ge_positive_equal(self):
+        assert self.path.child('a') >= self.path.child('a')
+
+    def test_ge_negative(self):
+        assert not self.path.child('a') >= self.path.child('b')
+
     def test_parent(self):
         p = self.path.child('foo')
         c = p.child('bar')

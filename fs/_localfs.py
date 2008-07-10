@@ -99,6 +99,22 @@ class path(object):
             return NotImplemented
         return self._pathname != other._pathname
 
+    def __lt__(self, other):
+        if not isinstance(other, path):
+            return NotImplemented
+        return self._pathname < other._pathname
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __gt__(self, other):
+        if not isinstance(other, path):
+            return NotImplemented
+        return self._pathname > other._pathname
+
+    def __ge__(self, other):
+        return self > other or self == other
+
     def rename(self, newpath):
         """
         Rename this path. Mutates the object.
