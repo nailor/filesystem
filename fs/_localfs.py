@@ -1,6 +1,7 @@
 import os
 import stat
 
+
 class InsecurePathError(Exception):
     """
     The path operation is unsafe to perform.
@@ -13,6 +14,15 @@ class InsecurePathError(Exception):
     """
     pass
 
+
+class NoDirectoryError(Exception):
+    """
+    Raised if an iterator is requested on a path that doesn't
+    represent a directory.
+    """
+    pass
+
+
 class CrossdeviceRenameError(Exception):
     """
     Rename old and new paths are not on the same filesystem.
@@ -20,6 +30,8 @@ class CrossdeviceRenameError(Exception):
     Rename cannot work across different python filesystems backends.
     New path is not on the local filesystem.
     """
+    pass
+
 
 class path(object):
     def __init__(self, pathname):
@@ -64,6 +76,10 @@ class path(object):
         """
         Return an iterator over this ``path`` object, assuming
         it denotes a directory.
+
+        If the list of files in the directory can't be determined
+        or the supposed directory isn't a directory at all, raise
+        an ``OSError``.
         """
         for item in os.listdir(self._pathname):
             yield self.child(item)

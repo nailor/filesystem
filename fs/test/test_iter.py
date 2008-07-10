@@ -3,7 +3,8 @@ import os
 
 from nose.tools import eq_ as eq
 
-from fs.test.util import maketemp
+from fs.test.util import assert_raises, maketemp
+    
 import fs
 
 
@@ -17,3 +18,14 @@ def test_iter():
     # see whether we actually get the file names with the iterator
     p = fs.path(temp_dir)
     eq(sorted(str(x) for x in p), sorted(str(p.child(x)) for x in temp_files))
+
+def test_not_directory():
+    temp_dir = maketemp()
+    # prepare a file on which to call the iterator
+    f = open(os.path.join(temp_dir, "some_file"), "w")
+    f.close()
+    # check reaction on getting the iterator
+    p = fs.path(temp_dir).join("some_file")
+    iterator = iter(p)
+    # note: the exception is only raised after calling ``next``
+    assert_raises(OSError, iterator.next)
