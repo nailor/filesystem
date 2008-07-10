@@ -9,3 +9,6 @@ class path(object):
 
     def join(self, relpath):
         return self.__class__(os.path.join(self._pathname, relpath))
+
+    def open(self, *a, **kw):
+        return file(self._pathname, *a, **kw)
