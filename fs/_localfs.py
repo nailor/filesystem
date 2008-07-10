@@ -31,8 +31,8 @@ class path(object):
             raise InsecurePathError('path name to join must be relative')
         return self.__class__(os.path.join(self._pathname, relpath))
 
-    def open(self, *a, **kw):
-        return file(self._pathname, *a, **kw)
+    def open(self, *args, **kwargs):
+        return file(self._pathname, *args, **kwargs)
 
     def __iter__(self):
         for i in os.listdir(self._pathname):
