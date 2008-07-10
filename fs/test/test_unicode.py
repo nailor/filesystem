@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import (
     eq_ as eq,
     )
@@ -17,4 +19,8 @@ def test_path_unicode_argument():
     p = fs.path(u"/")
     assert isinstance(str(p), str)
     assert isinstance(unicode(p), unicode)
+
+def test_repr():
+    p = fs.path(u"/test\xe4")
+    assert isinstance(repr(p), str)
 
