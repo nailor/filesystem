@@ -12,6 +12,13 @@ class InsecurePathError(Exception):
     """
     pass
 
+class CrossdeviceRenameError(Exception):
+    """
+    Rename old and new paths are not on the same filesystem.
+
+    Rename cannot work across different python filesystems backends.
+    New path is not on the local filesystem.
+    """
 
 class path(object):
     def __init__(self, pathname):
@@ -86,3 +93,15 @@ class path(object):
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname != other._pathname
+
+    def rename(self, newpath):
+        """
+        Rename this path. Mutates the object.
+        """
+        if not isinstance(newpath, path):
+            raise CrossdeviceRenameError()
+        os.rename(self._pathname, newpath._pathname)
+        self._pathname = newpath._pathname
+
+    def stat(self):
+        return os.stat(self._pathname)
