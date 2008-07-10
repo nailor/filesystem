@@ -28,15 +28,15 @@ class path(object):
 
     def join(self, relpath):
         """
-        Return a new `path` object, with the relative path `relpath`
-        joined on it.
+        Return a new ``path`` object, with the relative path
+        ``relpath`` joined on it.
 
         For example,
 
             p = fs.path(u"/some/path").join(u"some_more")
 
         The appended path has to be a relative path. Otherwise,
-        an `InsecurePathError` is raised. 
+        an ``InsecurePathError`` is raised. 
         """
         if relpath.startswith(u'/'):
             raise InsecurePathError('path name to join must be relative')
@@ -46,15 +46,15 @@ class path(object):
         """
         Return a file-like object denoted by this path object.
 
-        Arguments of the `open` call are passed to Python's
-        `file` constructor. If that raises an exception it will
-        be passed on to the caller of the `open` method.
+        Arguments of the ``open`` call are passed to Python's
+        ``file`` constructor. If that raises an exception it will
+        be passed on to the caller of the ``open`` method.
         """
         return file(self._pathname, *args, **kwargs)
 
     def __iter__(self):
         """
-        Return an iterator over this `path` object, assuming
+        Return an iterator over this ``path`` object, assuming
         it denotes a directory.
         """
         for item in os.listdir(self._pathname):
