@@ -48,6 +48,10 @@ class path(object):
             p = p.join(segment)
         return p
 
+    def parent(self):
+        head, tail = os.path.split(self._pathname)
+        return self.__class__(head)
+
     def __eq__(self, other):
         if not isinstance(other, path):
             return NotImplemented

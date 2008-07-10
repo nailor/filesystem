@@ -60,3 +60,8 @@ class OperationsMixin(object):
         a = self.path.child('foo')
         b = 'foo'
         assert a != b, '%r should not be equal to %r' % (a, b)
+
+    def test_parent(self):
+        p = self.path.child('foo')
+        c = p.child('bar')
+        eq(c.parent(), p)
