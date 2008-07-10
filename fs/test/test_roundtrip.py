@@ -165,5 +165,7 @@ class OperationsMixin(object):
         ## but one can ask for this error not to be raised
         p = self.path.child('foo').mkdir(dir_may_exist=True)
 
-        
-        
+        ## mkdir will raise errors if the parent dirs doesn't exist
+        e = assert_raises(
+            OSError, self.path.child('newdir').child('subdir').mkdir)
+        eq(e.errno, errno.ENOENT)
