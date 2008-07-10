@@ -1,3 +1,3 @@
-from fs._localfs import path
+from fs._localfs import path, PathEscapeException
 
 root = path(u'/')
