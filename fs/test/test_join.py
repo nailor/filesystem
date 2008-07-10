@@ -31,7 +31,8 @@ def test_with_leading_slash():
     join should raise an exception if one tries to escape from the
     path by giving an absolute path
     """
-    assert_raises(fs.InsecurePathError, fs.path(u'/tmp').join, u'/usr')
+    e = assert_raises(fs.InsecurePathError, fs.path(u'/tmp').join, u'/usr')
+    eq(str(e), 'path name to join must be relative')
 
 def test_with_trailing_slash():
     """

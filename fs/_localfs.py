@@ -23,6 +23,9 @@ class path(object):
     def __unicode__(self):
         return unicode(self._pathname)
 
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, self._pathname)
+
     def join(self, relpath):
         if relpath.startswith('/'):
             raise InsecurePathError('path name to join must be relative')
@@ -47,3 +50,17 @@ class path(object):
                       'child trying to climb out of directory')
             p = p.join(segment)
         return p
+
+    def parent(self):
+        head, tail = os.path.split(self._pathname)
+        return self.__class__(head)
+
+    def __eq__(self, other):
+        if not isinstance(other, path):
+            return NotImplemented
+        return self._pathname == other._pathname
+
+    def __ne__(self, other):
+        if not isinstance(other, path):
+            return NotImplemented
+        return self._pathname != other._pathname
