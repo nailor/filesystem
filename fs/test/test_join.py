@@ -49,7 +49,8 @@ def test_side_effects():
     eq(str(path), u'/')
     assert path is not ret
 
-def test_zero_parameters():
+def test_wrong_parameters():
     """join should raise an error if it doesn't get the right parameters"""
     assert_raises(TypeError, fs.root.join)
     assert_raises(AttributeError, fs.root.join, 32)
+    ## TODO: Should or should not join accept multiple arguments?
