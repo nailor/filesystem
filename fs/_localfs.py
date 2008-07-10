@@ -85,6 +85,9 @@ class path(object):
             yield self.child(item)
 
     def child(self, *segments):
+        """
+        Return a child of the ``path`` object.
+        """
         p = self
         for segment in segments:
             if u'/' in segment:
