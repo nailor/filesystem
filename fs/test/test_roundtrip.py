@@ -13,7 +13,10 @@ from nose.tools import (
 
 from fs.test.util import (
     ne,
+    assert_raises
     )
+
+import errno
 
 class OperationsMixin(object):
     # the actual tests; subclass this and provide a setUp method that
@@ -153,3 +156,10 @@ class OperationsMixin(object):
         # create a new object, just in case .mkdir() stored something
         # in p
         eq(self.path.child('foo').isdir(), True)
+
+        ## if the dir already exists, an error should be raised
+        e = assert_raises(OSError, self.path.child('foo').mkdir)
+        eq(e.errno, errno.EEXIST)
+
+        
+        
