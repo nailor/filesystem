@@ -25,6 +25,5 @@ class path(object):
         return file(self._pathname, *a, **kw)
 
     def __iter__(self):
-        for i in os.listdir(self._pathname):
-            yield i
+        return iter(os.listdir(self._pathname))
 
