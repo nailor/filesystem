@@ -17,14 +17,6 @@ class InsecurePathError(Exception):
     pass
 
 
-class NoDirectoryError(Exception):
-    """
-    Raised if an iterator is requested on a path that doesn't
-    represent a directory.
-    """
-    pass
-
-
 class CrossDeviceRenameError(Exception):
     """
     Rename old and new paths are not on the same filesystem.
