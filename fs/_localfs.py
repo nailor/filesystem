@@ -84,6 +84,11 @@ class path(object):
         head, tail = os.path.split(self._pathname)
         return self.__class__(head)
 
+    def name(self):
+        """Return last segment of path"""
+        return os.path.basename(self._pathname)
+
+
     def __eq__(self, other):
         if not isinstance(other, path):
             return NotImplemented
