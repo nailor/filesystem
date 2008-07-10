@@ -28,7 +28,7 @@ def test_without_slash():
 def test_side_effects():
     ## join should return a new object, and not modify the existing
     path = fs.root
-    ret=path.join(u'tmp')
+    ret = path.join(u'tmp')
     eq(str(path), u'/')
     assert path is not ret
 
