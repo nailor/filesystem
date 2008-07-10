@@ -29,7 +29,8 @@ class path(object):
         return file(self._pathname, *a, **kw)
 
     def __iter__(self):
-        return iter(os.listdir(self._pathname))
+        for i in os.listdir(self._pathname):
+            yield path(i)
 
     def child(self, *segments):
         p = self

@@ -1,6 +1,7 @@
 import tempfile
 import os
 
+import util
 import fs
 
 
@@ -10,13 +11,13 @@ def create_temp_files(dir, amount=5):
 
 def test_iter():
     try:
-        temp_dir = tempfile.mkdtemp()
+        temp_dir = util.maketemp()
         temp_files = create_temp_files(temp_dir)
 
         p = fs.path(temp_dir)
-        files = os.listdir(temp_dir)
 
-        assert(i in files for i in p)
+        assert(i in temp_files for i in p)
+        assert(len(list(p)) == len(temp_files))
     finally:
         # Delete files
         for i in temp_files:
