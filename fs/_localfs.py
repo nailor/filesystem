@@ -44,3 +44,13 @@ class path(object):
                       'child trying to climb out of directory')
             p = p.join(segment)
         return p
+
+    def __eq__(self, other):
+        if not isinstance(other, path):
+            return NotImplemented
+        return self._pathname == other._pathname
+
+    def __ne__(self, other):
+        if not isinstance(other, path):
+            return NotImplemented
+        return self._pathname != other._pathname

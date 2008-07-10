@@ -78,3 +78,8 @@ def assert_raises(excClass, callableObj, *args, **kwargs):
         if hasattr(excClass,'__name__'): excName = excClass.__name__
         else: excName = str(excClass)
         raise AssertionError("%s not raised" % excName)
+
+def ne(a, b, msg=None):
+    """Shorthand for 'assert a != b, "%r == %r" % (a, b)
+    """
+    assert a != b, msg or "%r == %r" % (a, b)
