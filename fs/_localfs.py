@@ -1,12 +1,16 @@
 import os
 
-class PathEscapeException(Exception):
+class InsecurePathError(Exception):
     """
-    Should be raised on those occations:
+    The path operation is unsafe to perform.
+
+    An insecure operation was requested, for example:
+
      * a join is performed with an absolute path as input parameter
      * '..' is passed as a parameter to child method
      * Symlinks not passing security validations
     """
+
     pass
 
 class path(object):
@@ -18,7 +22,7 @@ class path(object):
 
     def join(self, relpath):
         if relpath.startswith('/'):
-            raise PathEscapeException
+            raise InsecurePathError('path name to join must be relative')
         return self.__class__(os.path.join(self._pathname, relpath))
 
     def open(self, *a, **kw):
@@ -27,3 +31,16 @@ class path(object):
     def __iter__(self):
         return iter(os.listdir(self._pathname))
 
+    def child(self, *segments):
+        p = self
+        for segment in segments:
+
+            if '/' in segment:
+                raise InsecurePathError('child name contains directory separator')
+
+            # this may be too naive
+            if segment == '..':
+                raise InsecurePathError('child trying to climb out of directory')
+
+            p = p.join(segment)
+        return p
