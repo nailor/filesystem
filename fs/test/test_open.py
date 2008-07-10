@@ -19,7 +19,7 @@ def test_open_nonexisting():
     e = assert_raises(IOError, p.open)
     eq(e.errno, errno.ENOENT)
 
-def test_open_reading():
+def test_open_for_reading():
     tmp = maketemp()
     foo = os.path.join(tmp, u'foo')
     # write file with Python's standard API ...
@@ -31,7 +31,7 @@ def test_open_reading():
         got = f.read()
     eq(got, 'bar')
 
-def test_open_writing():
+def test_open_for_writing():
     tmp = maketemp()
     foo = os.path.join(tmp, u'foo')
     # write test content
