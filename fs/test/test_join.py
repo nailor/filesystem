@@ -18,13 +18,17 @@ def test_root():
     slash = str(root)
     eq(slash, u'/')
 
-def test_with_slash():
-    assert_raises(fs.PathEscapeException, fs.path(u'/tmp').join, u'/usr')
-
 def test_without_slash():
     path = fs.root.join(u'tmp')
     eq(str(path), u'/tmp')
-    
+
+def test_with_leading_slash():
+    assert_raises(fs.PathEscapeException, fs.path(u'/tmp').join, u'/usr')
+
+def test_with_trailing_slash():
+    path = fs.root.join(u'usr/').join(u'lib').join(u'python/')
+    eq(str(path), "/usr/lib/python")
+
 def test_side_effects():
     ## join should return a new object, and not modify the existing
     path = fs.root
