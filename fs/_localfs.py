@@ -23,7 +23,7 @@ class NoDirectoryError(Exception):
     pass
 
 
-class CrossdeviceRenameError(Exception):
+class CrossDeviceRenameError(Exception):
     """
     Rename old and new paths are not on the same filesystem.
 
@@ -137,7 +137,7 @@ class path(object):
         Rename this path. Mutates the object.
         """
         if not isinstance(newpath, path):
-            raise CrossdeviceRenameError()
+            raise CrossDeviceRenameError()
         os.rename(self._pathname, newpath._pathname)
         self._pathname = newpath._pathname
 
