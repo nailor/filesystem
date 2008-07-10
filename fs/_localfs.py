@@ -24,3 +24,7 @@ class path(object):
     def open(self, *a, **kw):
         return file(self._pathname, *a, **kw)
 
+    def __iter__(self):
+        for i in os.listdir(self._pathname):
+            yield i
+
