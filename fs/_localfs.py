@@ -57,7 +57,7 @@ class path(object):
         ``file`` constructor. If that raises an exception it will
         be passed on to the caller of the ``open`` method.
         """
-        return file(self._pathname, *args, **kwargs)
+        return open(self._pathname, *args, **kwargs)
 
     def __iter__(self):
         """
@@ -65,7 +65,7 @@ class path(object):
         it denotes a directory.
         """
         for item in os.listdir(self._pathname):
-            yield path(item)
+            yield self.__class__(item)
 
     def child(self, *segments):
         p = self
