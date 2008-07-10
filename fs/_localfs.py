@@ -20,6 +20,9 @@ class path(object):
     def __str__(self):
         return self._pathname
 
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, self._pathname)
+
     def join(self, relpath):
         if relpath.startswith('/'):
             raise InsecurePathError('path name to join must be relative')
