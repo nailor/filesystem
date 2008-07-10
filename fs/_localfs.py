@@ -65,7 +65,7 @@ class path(object):
         it denotes a directory.
         """
         for item in os.listdir(self._pathname):
-            yield self.__class__(item)
+            yield self.child(item)
 
     def child(self, *segments):
         p = self
