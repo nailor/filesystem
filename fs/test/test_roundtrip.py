@@ -171,4 +171,5 @@ class OperationsMixin(object):
         eq(e.errno, errno.ENOENT)
 
         ## but one can ask for this error not to be raised
-        p = self.path.join('newdir/subdir1/subdir2').mkdir(create_parents=True)
+        self.path.join('newdir/subdir1/subdir2').mkdir(create_parents=True)
+        eq(self.path.join('newdir/subdir1/subdir2').isdir(), True)
