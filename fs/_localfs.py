@@ -10,8 +10,8 @@ class InsecurePathError(Exception):
      * '..' is passed as a parameter to child method
      * Symlinks not passing security validations
     """
-
     pass
+
 
 class path(object):
     def __init__(self, pathname):
@@ -34,13 +34,12 @@ class path(object):
     def child(self, *segments):
         p = self
         for segment in segments:
-
             if '/' in segment:
-                raise InsecurePathError('child name contains directory separator')
-
+                raise InsecurePathError(
+                      'child name contains directory separator')
             # this may be too naive
             if segment == '..':
-                raise InsecurePathError('child trying to climb out of directory')
-
+                raise InsecurePathError(
+                      'child trying to climb out of directory')
             p = p.join(segment)
         return p
