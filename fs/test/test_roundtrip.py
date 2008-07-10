@@ -65,3 +65,34 @@ class OperationsMixin(object):
         p = self.path.child('foo')
         c = p.child('bar')
         eq(c.parent(), p)
+
+    def test_rename_simple(self):
+        a = self.path.child('foo')
+        with a.open('w') as f:
+            f.write('bar')
+        b = self.path.child('quux')
+        a.rename(b)
+        # create a new object, just in case a.rename did something
+        # weird to b
+        c = self.path.child('quux')
+        eq(a, c)
+        with c.open() as f:
+            got = f.read()
+        eq(got, 'bar')
+
+    def test_rename_overwrite(self):
+        old = self.path.child('quux')
+        with old.open('w') as f:
+            f.write('old')
+        a = self.path.child('foo')
+        with a.open('w') as f:
+            f.write('bar')
+        b = self.path.child('quux')
+        a.rename(b)
+        # create a new object, just in case a.rename did something
+        # weird to b
+        c = self.path.child('quux')
+        eq(a, c)
+        with c.open() as f:
+            got = f.read()
+        eq(got, 'bar')
