@@ -19,25 +19,26 @@ def test_open_nonexisting():
     e = assert_raises(IOError, p.open)
     eq(e.errno, errno.ENOENT)
 
-def test_open_readonly():
+def test_open_reading():
     tmp = maketemp()
     foo = os.path.join(tmp, u'foo')
+    # write file with Python's standard API ...
     with file(foo, 'w') as f:
         f.write('bar')
-
+    # ... and read it back with our fs code
     p = fs.path(foo)
     with p.open() as f:
         got = f.read()
     eq(got, 'bar')
 
-def test_open_write():
+def test_open_writing():
     tmp = maketemp()
     foo = os.path.join(tmp, u'foo')
-
+    # write test content
     p = fs.path(foo)
     with p.open('w') as f:
         f.write('bar')
-
+    # read back in and compare
     with file(foo) as f:
         got = f.read()
     eq(got, 'bar')
