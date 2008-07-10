@@ -1,7 +1,7 @@
 from fs._localfs import (
     path,
     InsecurePathError,
-    CrossdeviceRenameError,
+    CrossDeviceRenameError,
     )
 
 root = path(u'/')
