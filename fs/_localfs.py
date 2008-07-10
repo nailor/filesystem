@@ -27,7 +27,7 @@ class path(object):
         return '%s(%r)' % (self.__class__.__name__, self._pathname)
 
     def join(self, relpath):
-        if relpath.startswith('/'):
+        if relpath.startswith(u'/'):
             raise InsecurePathError('path name to join must be relative')
         return self.__class__(os.path.join(self._pathname, relpath))
 
