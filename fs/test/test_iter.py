@@ -10,12 +10,11 @@ import fs
 def test_iter():
     temp_dir = maketemp()
     temp_files = ['file1', 'file2', 'file3']
-
+    # put some files in the temporary directory
     for i in temp_files:
         f = open(os.path.join(temp_dir, i), 'w')
         f.close()
-
+    # see whether we actually get the file names with the iterator
     p = fs.path(temp_dir)
-
     eq(sorted([str(i) for i in p]), sorted(temp_files))
 
