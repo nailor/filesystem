@@ -1,3 +1,3 @@
 from fs._localfs import path
 
-root = path('/')
+root = path(u'/')
