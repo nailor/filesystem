@@ -1,5 +1,6 @@
 import os
 import stat
+import errno
 
 
 class InsecurePathError(Exception):
@@ -164,6 +165,17 @@ class path(object):
 
     remove = unlink
 
-    def mkdir(self):
-        os.mkdir(self._pathname)
-
+    def mkdir(self, dir_may_exist=False):
+        """
+        Creates the path.  dir_may_exists will ignore dir exists
+        exceptions
+        """
+        try:
+            os.mkdir(self._pathname)
+        except OSError, e:
+            if dir_may_exist and e.errno == errno.EEXIST:
+                pass
+            else:
+                raise
+            
+            
