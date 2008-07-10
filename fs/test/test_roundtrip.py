@@ -146,3 +146,10 @@ class OperationsMixin(object):
             f.write('bar')
         a.remove()
         eq(list(self.path), [])
+
+    def test_mkdir(self):
+        p = self.path.child('foo').mkdir()
+        eq(list(self.path), [self.path.child('foo')])
+        # create a new object, just in case .mkdir() stored something
+        # in p
+        eq(self.path.child('foo').isdir(), True)

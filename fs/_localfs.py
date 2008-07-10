@@ -144,3 +144,7 @@ class path(object):
         os.unlink(self._pathname)
 
     remove = unlink
+
+    def mkdir(self):
+        os.mkdir(self._pathname)
+
