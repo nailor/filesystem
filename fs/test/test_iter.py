@@ -17,7 +17,7 @@ def test_iter():
         f.close()
     # see whether we actually get the file names with the iterator
     p = fs.path(temp_dir)
-    eq(sorted([str(i) for i in p]), sorted(temp_files))
+    eq(sorted(str(x) for x in p), sorted(str(p.child(x)) for x in temp_files))
 
 def test_not_directory():
     temp_dir = maketemp()

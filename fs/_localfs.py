@@ -1,4 +1,5 @@
 import os
+import stat
 
 
 class InsecurePathError(Exception):
@@ -81,7 +82,7 @@ class path(object):
         an ``OSError``.
         """
         for item in os.listdir(self._pathname):
-            yield self.__class__(item)
+            yield self.child(item)
 
     def child(self, *segments):
         p = self
@@ -100,6 +101,11 @@ class path(object):
         head, tail = os.path.split(self._pathname)
         return self.__class__(head)
 
+    def name(self):
+        """Return last segment of path"""
+        return os.path.basename(self._pathname)
+
+
     def __eq__(self, other):
         if not isinstance(other, path):
             return NotImplemented
@@ -109,6 +115,22 @@ class path(object):
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname != other._pathname
+
+    def __lt__(self, other):
+        if not isinstance(other, path):
+            return NotImplemented
+        return self._pathname < other._pathname
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __gt__(self, other):
+        if not isinstance(other, path):
+            return NotImplemented
+        return self._pathname > other._pathname
+
+    def __ge__(self, other):
+        return self > other or self == other
 
     def rename(self, newpath):
         """
@@ -121,3 +143,24 @@ class path(object):
 
     def stat(self):
         return os.stat(self._pathname)
+
+    def isdir(self):
+        return stat.S_ISDIR(self.stat().st_mode)
+
+    def isfile(self):
+        return stat.S_ISREG(self.stat().st_mode)
+
+    def islink(self):
+        return stat.S_ISLNK(self.stat().st_mode)
+
+    def size(self):
+        return self.stat().st_size
+
+    def unlink(self):
+        os.unlink(self._pathname)
+
+    remove = unlink
+
+    def mkdir(self):
+        os.mkdir(self._pathname)
+

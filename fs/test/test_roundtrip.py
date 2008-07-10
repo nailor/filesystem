@@ -61,6 +61,42 @@ class OperationsMixin(object):
         b = 'foo'
         assert a != b, '%r should not be equal to %r' % (a, b)
 
+    def test_lt_positive(self):
+        assert self.path.child('a') < self.path.child('b')
+
+    def test_lt_negative(self):
+        assert not self.path.child('b') < self.path.child('a')
+
+    def test_lt_negative_equal(self):
+        assert not self.path.child('a') < self.path.child('a')
+
+    def test_le_positive(self):
+        assert self.path.child('a') <= self.path.child('b')
+
+    def test_le_positive_equal(self):
+        assert self.path.child('a') <= self.path.child('a')
+
+    def test_le_negative(self):
+        assert not self.path.child('b') <= self.path.child('a')
+
+    def test_gt_positive(self):
+        assert self.path.child('b') > self.path.child('a')
+
+    def test_gt_negative(self):
+        assert not self.path.child('a') > self.path.child('b')
+
+    def test_gt_negative_equal(self):
+        assert not self.path.child('a') > self.path.child('a')
+
+    def test_ge_positive(self):
+        assert self.path.child('b') >= self.path.child('a')
+
+    def test_ge_positive_equal(self):
+        assert self.path.child('a') >= self.path.child('a')
+
+    def test_ge_negative(self):
+        assert not self.path.child('a') >= self.path.child('b')
+
     def test_parent(self):
         p = self.path.child('foo')
         c = p.child('bar')
@@ -96,3 +132,24 @@ class OperationsMixin(object):
         with c.open() as f:
             got = f.read()
         eq(got, 'bar')
+
+    def test_unlink_simple(self):
+        a = self.path.child('foo')
+        with a.open('w') as f:
+            f.write('bar')
+        a.unlink()
+        eq(list(self.path), [])
+
+    def test_remove_simple(self):
+        a = self.path.child('foo')
+        with a.open('w') as f:
+            f.write('bar')
+        a.remove()
+        eq(list(self.path), [])
+
+    def test_mkdir(self):
+        p = self.path.child('foo').mkdir()
+        eq(list(self.path), [self.path.child('foo')])
+        # create a new object, just in case .mkdir() stored something
+        # in p
+        eq(self.path.child('foo').isdir(), True)
