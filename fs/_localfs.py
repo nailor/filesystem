@@ -1,4 +1,5 @@
 import os
+import stat
 
 class InsecurePathError(Exception):
     """
@@ -126,3 +127,16 @@ class path(object):
 
     def stat(self):
         return os.stat(self._pathname)
+
+    def isdir(self):
+        return stat.S_ISDIR(self.stat().st_mode)
+
+    def isfile(self):
+        return stat.S_ISREG(self.stat().st_mode)
+
+    def islink(self):
+        return stat.S_ISLNK(self.stat().st_mode)
+
+    def size(self):
+        return self.stat().st_size
+
