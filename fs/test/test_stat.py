@@ -1,6 +1,7 @@
 from __future__ import with_statement
 import os
 import stat
+import errno
 
 from nose.tools import eq_ as eq
 
@@ -30,7 +31,8 @@ def test_stat_isreg():
 def test_stat_missing_file():
     temp_dir = maketemp()
     p = fs.path(os.path.join(temp_dir, 'inexistent_file'))
-    assert_raises(OSError, p.stat)
+    e = assert_raises(OSError, p.stat)
+    eq(e.errno, errno.ENOENT)
 
 
 def test_stat_size():
