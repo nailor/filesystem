@@ -15,9 +15,9 @@ def test_iter():
         temp_files = create_temp_files(temp_dir)
 
         p = fs.path(temp_dir)
-        files = os.listdir(temp_dir)
 
-        assert(i in files for i in p)
+        assert(i in temp_files for i in p)
+        assert(len(list(p)) == len(temp_files))
     finally:
         # Delete files
         for i in temp_files:
