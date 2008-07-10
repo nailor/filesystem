@@ -27,7 +27,7 @@ def test_with_leading_slash():
 
 def test_with_trailing_slash():
     path = fs.root.join(u'usr/').join(u'lib').join(u'python/')
-    eq(str(path), "/usr/lib/python")
+    eq(str(path), "/usr/lib/python/")
 
 def test_side_effects():
     ## join should return a new object, and not modify the existing
