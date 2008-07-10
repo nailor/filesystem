@@ -185,5 +185,6 @@ class path(object):
                 pass
             else:
                 raise
-            
-            
+
+    def rmdir(self):
+        os.rmdir(self._pathname)

@@ -151,7 +151,7 @@ class OperationsMixin(object):
         eq(list(self.path), [])
 
     def test_mkdir(self):
-        p = self.path.child('foo').mkdir()
+        self.path.child('foo').mkdir()
         eq(list(self.path), [self.path.child('foo')])
         # create a new object, just in case .mkdir() stored something
         # in p
@@ -173,3 +173,12 @@ class OperationsMixin(object):
         ## but one can ask for this error not to be raised
         self.path.join('newdir/subdir1/subdir2').mkdir(create_parents=True)
         eq(self.path.join('newdir/subdir1/subdir2').isdir(), True)
+
+    def test_rmdir(self):
+        p = self.path.child('foo')
+        p.mkdir()
+        p.rmdir()
+        eq(list(self.path), [])
+        # create a new object, just in case .rmdir() stored something
+        # in p
+        eq(self.path.child('foo').exists(), False)
