@@ -80,3 +80,6 @@ class path(object):
             raise CrossdeviceRenameError()
         os.rename(self._pathname, newpath._pathname)
         self._pathname = newpath._pathname
+
+    def stat(self):
+        return os.stat(self._pathname)
