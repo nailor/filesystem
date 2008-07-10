@@ -13,3 +13,8 @@ def test_root():
     root = fs.root
     slash = str(root)
     eq(slash, '/')
+
+def test_join():
+    path = fs.root.join('/tmp')
+    eq(str(path), '/tmp')
+    
