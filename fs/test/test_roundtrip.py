@@ -1,5 +1,5 @@
 """
-Unit tests that set up and test operations though the API.
+Unit tests that set up and test operations through the API.
 
 The intent is that you could run these unit tests against
 any reasonably normal fs API implementation.
@@ -27,7 +27,7 @@ class OperationsMixin(object):
     def test_open_read_write(self):
         p = self.path.child(u'foo')
         with p.open(u'w') as f:
-            f.write('bar')
+            f.write(u'bar')
         with p.open() as f:
             got = f.read()
         eq(got, u'bar')
@@ -215,7 +215,7 @@ class OperationsMixin(object):
 
         ## Walk top-down
         all = list(self.path.walk())
-        
+
         ## all should now be a list of four tuples, one for each
         ## non-empty directory encountered.  It can either be [self.path, SUB1, SUB11, SUB2]
         ## or [self.path, SUB2, SUB1, SUB11].
@@ -271,4 +271,4 @@ class OperationsMixin(object):
         ## cannot escape from the directory tree by in-place editing
         ## of the subdirectories list.  TODO: think about error
         ## handling
-        
+

@@ -80,7 +80,24 @@ class path(object):
 
     def child(self, *segments):
         """
-        Return a child of the ``path`` object.
+        Return a child of the ``path`` object. (A child is a
+        path representing a path one or more levels "deeper"
+        than the original path, on which this method is called.)
+
+        This method takes one or more positional arguments,
+        ``segments``, each representing an item further below
+        the path.
+
+        For example:
+
+            >>> path = fs.path(u"/usr/share")
+            >>> child_path = path.child(u"doc", u"python")
+            >>> print child_path
+            /usr/share/doc/python
+
+        If one of the segments contains a slash or equals
+        the string "..", that is considered an insecure 
+        operation and thus an ``InsecurePathError`` is raised.
         """
         p = self
         for segment in segments:
@@ -95,25 +112,57 @@ class path(object):
         return p
 
     def parent(self):
+        """
+        Return a path object representing the parent of this
+        ``path`` object on which this method is called. The
+        result is the path one level up.
+        """
         head, tail = os.path.split(self._pathname)
         return self.__class__(head)
 
     def name(self):
-        """Return last segment of path"""
+        """Return last segment of path."""
         return os.path.basename(self._pathname)
 
-
     def __eq__(self, other):
+        """
+        Return ``True`` if the two compared ``path`` objects
+        represent the same path, i. e. point to the same
+        filesystem item. If they don't represent the same
+        path, return ``False``.
+
+        Note that the comparison is based on the string
+        representations of the objects. Thus, if one of the
+        paths represents a link to the other, they may be
+        considered not equal though they in some sense
+        represent the same path.
+
+        If the paths cannot be compared, return the constant
+        ``NotImplemented``.
+        """
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname == other._pathname
 
     def __ne__(self, other):
+        """
+        Return ``True`` if the compared paths are not equal,
+        else ``False``.
+
+        See the explanations on the equality operator for some
+        background.
+        """
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname != other._pathname
 
     def __lt__(self, other):
+        """
+        Return ``True`` if the left path is string-wise lower
+        than the right, else ``False``.
+
+        Also see the documentation on the equality operator.
+        """
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname < other._pathname
