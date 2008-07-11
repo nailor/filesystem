@@ -16,6 +16,8 @@ from fs.test.util import (
     assert_raises
     )
 
+from fs import InsecurePathError
+
 import errno
 
 class OperationsMixin(object):
@@ -25,7 +27,7 @@ class OperationsMixin(object):
     def test_open_read_write(self):
         p = self.path.child(u'foo')
         with p.open(u'w') as f:
-            f.write(u'bar')
+            f.write('bar')
         with p.open() as f:
             got = f.read()
         eq(got, u'bar')
@@ -208,7 +210,7 @@ class OperationsMixin(object):
         ## Create some files
         for path in tmp1_path, tmp2_path, tmp3_path:
             f = path.open(u'w')
-            f.write(u"I'm %s and cloned from test_os.  Blame test_roundtrip.py")
+            f.write("I'm %s and cloned from test_os.  Blame test_roundtrip.py")
             f.close()
 
         ## Walk top-down
@@ -242,8 +244,8 @@ class OperationsMixin(object):
         ## to write "clean" test code.  In test_os an attribute
         ## "flipped" is created to indicate the order sub1 and sub2
         ## came out.
-
-        # Prune the search.
+        
+        ## Prune the search.
         all = []
         for root, dirs, files in self.path.walk():
             all.append((root, dirs, files))
@@ -254,6 +256,15 @@ class OperationsMixin(object):
         eq(len(all), 2)
         eq(all[0], (self.path, [sub2_path], [tmp1_path]))
         eq(all[1], (sub2_path, [], [tmp3_path]))
+
+        ## Inject out-of-tree path in dirs
+        try:
+            for (root, dirs, files) in self.path.walk():
+                eq(root, self.path) ## we shouldn't recurse into parent
+                dirs[0] = self.path.parent()
+        except InsecurePathError:
+            pass
+        
 
 
         ## TODO: more test code: test the top-down attribute, test that one
