@@ -198,20 +198,37 @@ class path(object):
 
     def rename(self, new_path):
         """
-        Rename this path. Mutates the object.
+        Rename this path a new path ``new_path`` (a ``path``
+        object). The object is changed in-place.
+
+        If the renaming operation fails, raise an ``OSError``.
         """
+        # is this sufficient?
         if not isinstance(new_path, path):
             raise CrossDeviceRenameError()
         os.rename(self._pathname, new_path._pathname)
         self._pathname = new_path._pathname
 
     def stat(self):
+        """
+        Return the result of "stat'ing" this ``path`` object.
+        The return value is of the same type as for ``os.stat``.
+        """
         return os.stat(self._pathname)
 
     def exists(self):
+        """
+        Return ``True`` if this path actually exists in the
+        concrete filesystem, else return ``False``.
+
+        If there is an error, raise ``OSError``. Note that the
+        non-existence of the path isn't an error, but simply
+        returns ``False``.
+        """
         try:
             self.stat()
         except OSError, e:
+            # ENOENT means the path wasn't found
             if e.errno == errno.ENOENT:
                 return False
             else:
@@ -219,12 +236,30 @@ class path(object):
         return True
 
     def isdir(self):
+        """
+        Return ``True`` if the path corresponds to a directory
+        or a symlink to one, else return ``False``.
+
+        Raise an ``OSError`` if the operation fails.
+        """
         return stat.S_ISDIR(self.stat().st_mode)
 
     def isfile(self):
+        """
+        Return ``True`` if the path corresponds to a file or a
+        symlink to it, else return ``False``.
+
+        Raise an ``OSError`` if the operation fails.
+        """
         return stat.S_ISREG(self.stat().st_mode)
 
     def islink(self):
+        """
+        Return ``True`` if the path corresponds to a symlink,
+        else return ``False``.
+
+        Raise an ``OSError`` if the operation fails.
+        """
         return stat.S_ISLNK(self.stat().st_mode)
 
     ## TODO: we have no test code here!
