@@ -16,6 +16,8 @@ from fs.test.util import (
     assert_raises
     )
 
+from fs import InsecurePathError
+
 import errno
 
 class OperationsMixin(object):
@@ -243,7 +245,7 @@ class OperationsMixin(object):
         ## "flipped" is created to indicate the order sub1 and sub2
         ## came out.
         
-        # Prune the search.
+        ## Prune the search.
         all = []
         for root, dirs, files in self.path.walk():
             all.append((root, dirs, files))
@@ -254,6 +256,15 @@ class OperationsMixin(object):
         eq(len(all), 2)
         eq(all[0], (self.path, [sub2_path], [tmp1_path]))
         eq(all[1], (sub2_path, [], [tmp3_path]))
+
+        ## Inject out-of-tree path in dirs
+        try:
+            for (root, dirs, files) in self.path.walk():
+                eq(root, self.path) ## we shouldn't recurse into parent
+                dirs[0] = self.path.parent()
+        except InsecurePathError:
+            pass
+        
 
 
         ## TODO: more test code: test the top-down attribute, test that one

@@ -221,6 +221,8 @@ class path(object):
         nondirs = [c for c in children if not c.isdir()]
         yield (self, subdirs, nondirs)
         for d in subdirs:
+            if (d.parent() != self):
+                raise InsecurePathError("walk is only allowed into subdirs")
             if not d.islink():
                 for w in d.walk():
                     yield w
