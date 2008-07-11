@@ -27,7 +27,7 @@ class OperationsMixin(object):
     def test_open_read_write(self):
         p = self.path.child(u'foo')
         with p.open(u'w') as f:
-            f.write(u'bar')
+            f.write('bar')
         with p.open() as f:
             got = f.read()
         eq(got, u'bar')
@@ -210,7 +210,7 @@ class OperationsMixin(object):
         ## Create some files
         for path in tmp1_path, tmp2_path, tmp3_path:
             f = path.open(u'w')
-            f.write(u"I'm %s and cloned from test_os.  Blame test_roundtrip.py")
+            f.write("I'm %s and cloned from test_os.  Blame test_roundtrip.py")
             f.close()
 
         ## Walk top-down
