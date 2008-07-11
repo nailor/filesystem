@@ -196,14 +196,14 @@ class path(object):
         """
         return self > other or self == other
 
-    def rename(self, newpath):
+    def rename(self, new_path):
         """
         Rename this path. Mutates the object.
         """
-        if not isinstance(newpath, path):
+        if not isinstance(new_path, path):
             raise CrossDeviceRenameError()
-        os.rename(self._pathname, newpath._pathname)
-        self._pathname = newpath._pathname
+        os.rename(self._pathname, new_path._pathname)
+        self._pathname = new_path._pathname
 
     def stat(self):
         return os.stat(self._pathname)
