@@ -271,6 +271,11 @@ class path(object):
         return os.readlink(self._pathname)
 
     def size(self):
+        """
+        Return the size of the item represented by this path.
+
+        If the path cannot be accessed, raise an ``OSError``.
+        """
         return self.stat().st_size
 
     def unlink(self):
