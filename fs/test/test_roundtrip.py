@@ -222,6 +222,16 @@ class OperationsMixin(object):
         expected1 = [self.path.name(), 'SUB1', 'SUB11', 'SUB2']
         expected2 = [self.path.name(), 'SUB2', 'SUB1', 'SUB11']
         assert dir_list in (expected1, expected2)
+
+        ## First element is self.path
+        eq(all[0][0], self.path)
+
+        ## Second element is subdirlist - but the ordering is not guaranteed
+        subdirs_returned = list(all[0][1])
+        subdirs_expected = [sub1_path, sub2_path]
+        subdirs_returned.sort()
+        subdirs_expected.sort()
+        eq(subdirs_returned, subdirs_expected)
         
         ## TODO: more test code: test the top-down attribute, test
         ## in-place editing of the subdirectories list, test that one
@@ -230,3 +240,4 @@ class OperationsMixin(object):
         ## handling
         
         
+
