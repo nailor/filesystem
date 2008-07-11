@@ -260,13 +260,13 @@ class path(object):
         """
         return stat.S_ISLNK(self.stat().st_mode)
 
-    ## TODO: we have no test code here!
     def readlink(self):
         """
-        Return the target ``path`` to which the link represented by
-        this ``path`` object points.
+        Return the ``path`` as a string to which the link represented
+        by this ``path`` object points. If this ``path`` object
+        doesn't represent a link, raise an ``OSError``.
 
-        If the operation fails, raise an ``OSError`` exception.
+        If the operation fails, also raise an ``OSError`` exception.
         """
         return os.readlink(self._pathname)
 
