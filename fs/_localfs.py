@@ -49,8 +49,8 @@ class path(object):
 
             p = fs.path(u"/some/path").join(u"some_more")
 
-        The appended path has to be a relative path. Otherwise,
-        an ``InsecurePathError`` is raised. 
+        The appended path has to be a relative path. Otherwise, an
+        ``InsecurePathError`` is raised.
         """
         if relpath.startswith(u'/'):
             raise InsecurePathError('path name to join must be relative')
@@ -60,33 +60,33 @@ class path(object):
         """
         Return a file-like object denoted by this path object.
 
-        Arguments of the ``open`` call are passed to Python's
-        ``file`` constructor. If that raises an exception it will
-        be passed on to the caller of the ``open`` method.
+        Arguments of the ``open`` call are passed to Python's ``file``
+        constructor. If that raises an exception it will be passed on
+        to the caller of the ``open`` method.
         """
         return open(self._pathname, *args, **kwargs)
 
     def __iter__(self):
         """
-        Return an iterator over this ``path`` object, assuming
-        it denotes a directory.
+        Return an iterator over this ``path`` object, assuming it
+        denotes a directory.
 
-        If the list of files in the directory can't be determined
-        or the supposed directory isn't a directory at all, raise
-        an ``OSError``.
+        If the list of files in the directory can't be determined or
+        the supposed directory isn't a directory at all, raise an
+        ``OSError``.
         """
         for item in os.listdir(self._pathname):
             yield self.child(item)
 
     def child(self, *segments):
         """
-        Return a child of the ``path`` object. (A child is a
-        path representing a path one or more levels "deeper"
-        than the original path, on which this method is called.)
+        Return a child of the ``path`` object. (A child is a path
+        representing a path one or more levels "deeper" than the
+        original path, on which this method is called.)
 
         This method takes one or more positional arguments,
-        ``segments``, each representing an item further below
-        the path.
+        ``segments``, each representing an item further below the
+        path.
 
         For example:
 
@@ -95,9 +95,9 @@ class path(object):
             >>> print child_path
             /usr/share/doc/python
 
-        If one of the segments contains a slash or equals
-        the string "..", that is considered an insecure 
-        operation and thus an ``InsecurePathError`` is raised.
+        If one of the segments contains a slash or equals the string
+        "..", that is considered an insecure operation and thus an
+        ``InsecurePathError`` is raised.
         """
         p = self
         for segment in segments:
@@ -113,9 +113,9 @@ class path(object):
 
     def parent(self):
         """
-        Return a path object representing the parent of this
-        ``path`` object on which this method is called. The
-        result is the path one level up.
+        Return a path object representing the parent of this ``path``
+        object on which this method is called. The result is the path
+        one level up.
         """
         head, tail = os.path.split(self._pathname)
         return self.__class__(head)
@@ -126,16 +126,14 @@ class path(object):
 
     def __eq__(self, other):
         """
-        Return ``True`` if the two compared ``path`` objects
-        represent the same path, i. e. point to the same
-        filesystem item. If they don't represent the same
-        path, return ``False``.
+        Return ``True`` if the two compared ``path`` objects represent
+        the same path, i. e. point to the same filesystem item. If
+        they don't represent the same path, return ``False``.
 
         Note that the comparison is based on the string
-        representations of the objects. Thus, if one of the
-        paths represents a link to the other, they may be
-        considered not equal though they in some sense
-        represent the same path.
+        representations of the objects. Thus, if one of the paths
+        represents a link to the other, they may be considered not
+        equal though they in some sense represent the same path.
 
         If the paths cannot be compared, return the constant
         ``NotImplemented``.
@@ -146,8 +144,8 @@ class path(object):
 
     def __ne__(self, other):
         """
-        Return ``True`` if the compared paths are not equal,
-        else ``False``.
+        Return ``True`` if the compared paths are not equal, else
+        ``False``.
 
         See the explanations on the equality operator for some
         background.
@@ -158,8 +156,8 @@ class path(object):
 
     def __lt__(self, other):
         """
-        Return ``True`` if the left path is string-wise lower
-        than the right, else ``False``.
+        Return ``True`` if the left path is string-wise lower than the
+        right, else ``False``.
 
         Also see the documentation on the equality operator.
         """
@@ -168,32 +166,67 @@ class path(object):
         return self._pathname < other._pathname
 
     def __le__(self, other):
+        """
+        Return ``True`` if the left path is string-wise lower than or
+        equal to the right. Else return ``False``.
+
+        Also see the documentation on the equality operator.
+        """
         return self < other or self == other
 
     def __gt__(self, other):
+        """
+        Return ``True`` if the left path is string-wise greater than
+        the right. Else return ``False``.
+
+        Also see the documentation on the equality operator.
+        """
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname > other._pathname
 
     def __ge__(self, other):
+        """
+        Return ``True`` if the left path is string-wise greater than
+        or equal to the right. Else return ``False``.
+
+        Also see the documentation on the equality operator.
+        """
         return self > other or self == other
 
-    def rename(self, newpath):
+    def rename(self, new_path):
         """
-        Rename this path. Mutates the object.
+        Rename this path a new path ``new_path`` (a ``path`` object).
+        The object is changed in-place.
+
+        If the renaming operation fails, raise an ``OSError``.
         """
-        if not isinstance(newpath, path):
+        # is this sufficient?
+        if not isinstance(new_path, path):
             raise CrossDeviceRenameError()
-        os.rename(self._pathname, newpath._pathname)
-        self._pathname = newpath._pathname
+        os.rename(self._pathname, new_path._pathname)
+        self._pathname = new_path._pathname
 
     def stat(self):
+        """
+        Return the result of "stat'ing" this ``path`` object. The
+        return value is of the same type as for ``os.stat``.
+        """
         return os.stat(self._pathname)
 
     def exists(self):
+        """
+        Return ``True`` if this path actually exists in the concrete
+        filesystem, else return ``False``.
+
+        If there is an error, raise ``OSError``. Note that the
+        non-existence of the path isn't an error, but simply returns
+        ``False``.
+        """
         try:
             self.stat()
         except OSError, e:
+            # ENOENT means the path wasn't found
             if e.errno == errno.ENOENT:
                 return False
             else:
@@ -201,22 +234,58 @@ class path(object):
         return True
 
     def isdir(self):
+        """
+        Return ``True`` if the path corresponds to a directory or a
+        symlink to one, else return ``False``.
+
+        Raise an ``OSError`` if the operation fails.
+        """
         return stat.S_ISDIR(self.stat().st_mode)
 
     def isfile(self):
+        """
+        Return ``True`` if the path corresponds to a file or a symlink
+        to it, else return ``False``.
+
+        Raise an ``OSError`` if the operation fails.
+        """
         return stat.S_ISREG(self.stat().st_mode)
 
     def islink(self):
+        """
+        Return ``True`` if the path corresponds to a symlink, else
+        return ``False``.
+
+        Raise an ``OSError`` if the operation fails.
+        """
         return stat.S_ISLNK(self.stat().st_mode)
 
-    ## TODO: we have no test code here!
     def readlink(self):
+        """
+        Return the ``path`` as a string to which the link represented
+        by this ``path`` object points. If this ``path`` object
+        doesn't represent a link, raise an ``OSError``.
+
+        If the operation fails, also raise an ``OSError`` exception.
+        """
+        # XXX do we care about ``os.readlink`` returning a string or
+        # unicode string?
         return os.readlink(self._pathname)
 
     def size(self):
+        """
+        Return the size of the item represented by this path.
+
+        If the path cannot be accessed, raise an ``OSError``.
+        """
         return self.stat().st_size
 
     def unlink(self):
+        """
+        Remove the file or link identified by this path.
+
+        If the item cannot be removed, raise an ``OSError``.
+        """
         os.unlink(self._pathname)
 
     remove = unlink
