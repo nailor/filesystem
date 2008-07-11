@@ -163,7 +163,7 @@ class OperationsMixin(object):
 
 
         ## but one can ask for this error not to be raised
-        p = self.path.child(u'foo').mkdir(dir_may_exist=True)
+        p = self.path.child(u'foo').mkdir(may_exist=True)
 
         ## mkdir will raise errors if the parent dirs doesnu't exist
         e = assert_raises(

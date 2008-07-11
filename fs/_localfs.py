@@ -168,20 +168,20 @@ class path(object):
 
     remove = unlink
 
-    def mkdir(self, dir_may_exist=False, create_parents=False):
+    def mkdir(self, may_exist=False, create_parents=False):
         """
-        Creates the path.  dir_may_exists will ignore dir exists
+        Creates the path.  may_exists will ignore dir exists
         exceptions
         """
         if create_parents:
             if self.parent() == self:
                 return
 
-            self.parent().mkdir(create_parents=True, dir_may_exist=True)
+            self.parent().mkdir(create_parents=True, may_exist=True)
         try:
             os.mkdir(self._pathname)
         except OSError, e:
-            if dir_may_exist and e.errno == errno.EEXIST:
+            if may_exist and e.errno == errno.EEXIST:
                 pass
             else:
                 raise
