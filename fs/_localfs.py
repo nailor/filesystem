@@ -160,6 +160,9 @@ class path(object):
     def islink(self):
         return stat.S_ISLNK(self.stat().st_mode)
 
+    def readlink(self):
+        return os.readlink(self._pathname)
+
     def size(self):
         return self.stat().st_size
 
