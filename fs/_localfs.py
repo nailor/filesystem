@@ -168,14 +168,32 @@ class path(object):
         return self._pathname < other._pathname
 
     def __le__(self, other):
+        """
+        Return ``True`` if the left path is string-wise lower
+        than or equal to the right. Else return ``False``.
+
+        Also see the documentation on the equality operator.
+        """
         return self < other or self == other
 
     def __gt__(self, other):
+        """
+        Return ``True`` if the left path is string-wise greater
+        than the right. Else return ``False``.
+
+        Also see the documentation on the equality operator.
+        """
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname > other._pathname
 
     def __ge__(self, other):
+        """
+        Return ``True`` if the left path is string-wise greater
+        than or equal to the right. Else return ``False``.
+
+        Also see the documentation on the equality operator.
+        """
         return self > other or self == other
 
     def rename(self, newpath):
