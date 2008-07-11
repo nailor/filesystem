@@ -266,9 +266,15 @@ class OperationsMixin(object):
             pass
         
 
+        # Walk bottom-up.
+        all = list(self.path.walk(topdown=False))
+        eq(len(all), 4)
+        dir_list = [path_tuple[0].name() for path_tuple in all]
+        expected1 = ['SUB11', 'SUB1', 'SUB2', self.path.name()]
+        expected2 = ['SUB2', 'SUB11', 'SUB1', self.path.name()]
+        eq(dir_list, expected1)
+        assert dir_list in (expected1, expected2)
 
-        ## TODO: more test code: test the top-down attribute, test that one
-        ## cannot escape from the directory tree by in-place editing
-        ## of the subdirectories list.  TODO: think about error
-        ## handling
-
+        ## TODO: we should do a complete test, just the reverse of
+        ## further above - and it should be refactored to avoid
+        ## duplicated code.

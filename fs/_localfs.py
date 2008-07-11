@@ -242,15 +242,13 @@ class path(object):
     def rmdir(self):
         os.rmdir(self._pathname)
 
-    def walk(self):
+    def walk(self, topdown=True):
         """Directory tree generator.
 
         For each directory in the directory tree rooted at top
         (including top itself), yields a 3-tuple
 
           (directory, subdirectories, nondirs)
-
-        TODO: Optional arg 'topdown' is not implemented yet.
 
         TODO: When topdown is true, the caller can modify the
         subdirectories list in-place (e.g., via del or slice
@@ -262,16 +260,20 @@ class path(object):
         interrupt the whole walk on errors.  We should probably do the
         same.
 
-        TODO: we should have a follow_symlinks flag
+        TODO: we should have a follow_symlinks flag, but then we also
+        need loop control.
         """
         children = list(self)
         ## TODO: optimize?
         subdirs = [c for c in children if c.isdir()]
         nondirs = [c for c in children if not c.isdir()]
-        yield (self, subdirs, nondirs)
+        if topdown:
+            yield (self, subdirs, nondirs)
         for d in subdirs:
             if (d.parent() != self):
                 raise InsecurePathError("walk is only allowed into subdirs")
             if not d.islink():
-                for w in d.walk():
+                for w in d.walk(topdown):
                     yield w
+        if not topdown:
+            yield (self, subdirs, nondirs)
