@@ -220,6 +220,8 @@ class PathnameMixin(object):
         one level up.
         """
         head, tail = os.path.split(self._pathname)
+        if head == '':
+            head = '.'
         return self.__class__(head)
 
     def name(self):
