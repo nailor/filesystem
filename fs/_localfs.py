@@ -80,9 +80,9 @@ class path(object):
 
     def child(self, *segments):
         """
-        Return a child of the ``path`` object. (A child is a
-        path representing a path one or more levels "deeper"
-        than the original path, on which this method is called.)
+        Return a child of the ``path`` object. (A child is a path
+        representing a path one level "deeper" than the original
+        path, on which this method is called.)
 
         This method takes one or more positional arguments,
         ``segments``, each representing an item further below
