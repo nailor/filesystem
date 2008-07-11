@@ -182,3 +182,51 @@ class OperationsMixin(object):
         # create a new object, just in case .rmdir() stored something
         # in p
         eq(self.path.child(u'foo').exists(), False)
+
+    def test_walk(self):
+        ## File tree copied from /usr/lib/python2.5/test/test_os.py, class WalkTests
+        sub1_path = self.path.join(u"SUB1")
+        sub11_path = sub1_path.join(u"SUB11")
+        sub2_path = self.path.join(u"SUB2")
+        tmp1_path = self.path.join(u"tmp1")
+        tmp2_path = sub1_path.join(u"tmp2")
+        tmp3_path = sub2_path.join(u"tmp3")
+
+        ## Create dirs
+        sub11_path.mkdir(may_exist=True, create_parents=True)
+        sub2_path.mkdir(may_exist=True, create_parents=True)
+
+        ## First test, walk on an empty dir should return a list with one item
+        empty_dir_walk = list(sub11_path.walk())
+        eq(len(empty_dir_walk), 1)
+        ## Each list item is a three-element tuple just like with os.path:
+        ## (directory, subdirlist, filelist)
+        eq(empty_dir_walk[0][0], sub11_path)
+        eq(empty_dir_walk[0][1], [])
+        eq(empty_dir_walk[0][2], [])
+
+        ## Create some files
+        for path in tmp1_path, tmp2_path, tmp3_path:
+            f = path.open(u'w')
+            f.write(u"I'm %s and cloned from test_os.  Blame test_roundtrip.py")
+            f.close()
+
+        ## Walk top-down
+        all = list(self.path.walk())
+        
+        ## all should now be a list of four tuples, one for each
+        ## non-empty directory encountered.  It can either be [self.path, SUB1, SUB11, SUB2]
+        ## or [self.path, SUB2, SUB1, SUB11].
+        eq(len(all), 4)
+        dir_list = [path_tuple[0].name() for path_tuple in all]
+        expected1 = [self.path.name(), 'SUB1', 'SUB11', 'SUB2']
+        expected2 = [self.path.name(), 'SUB2', 'SUB1', 'SUB11']
+        assert dir_list in (expected1, expected2)
+        
+        ## TODO: more test code: test the top-down attribute, test
+        ## in-place editing of the subdirectories list, test that one
+        ## cannot escape from the directory tree by in-place editing
+        ## of the subdirectories list.  TODO: think about error
+        ## handling
+        
+        
