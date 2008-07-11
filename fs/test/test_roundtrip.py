@@ -217,13 +217,15 @@ class OperationsMixin(object):
         ## all should now be a list of four tuples, one for each
         ## non-empty directory encountered.  It can either be [self.path, SUB1, SUB11, SUB2]
         ## or [self.path, SUB2, SUB1, SUB11].
+        ## TODO: refactor this test code, it should check the full return structure
         eq(len(all), 4)
         dir_list = [path_tuple[0].name() for path_tuple in all]
         expected1 = [self.path.name(), 'SUB1', 'SUB11', 'SUB2']
         expected2 = [self.path.name(), 'SUB2', 'SUB1', 'SUB11']
         assert dir_list in (expected1, expected2)
 
-        ## First element is self.path
+        ## FIRST in the list is self.path.
+        ## First element in the self.path-tuple is self.path
         eq(all[0][0], self.path)
 
         ## Second element is subdirlist - but the ordering is not guaranteed
@@ -232,12 +234,30 @@ class OperationsMixin(object):
         subdirs_returned.sort()
         subdirs_expected.sort()
         eq(subdirs_returned, subdirs_expected)
+
+        ## third element is the file list
+        eq(all[0][2], [tmp1_path])
+
+        ## TODO: the list is not checked completely yet.  Not sure how
+        ## to write "clean" test code.  In test_os an attribute
+        ## "flipped" is created to indicate the order sub1 and sub2
+        ## came out.
         
-        ## TODO: more test code: test the top-down attribute, test
-        ## in-place editing of the subdirectories list, test that one
+        # Prune the search.
+        all = []
+        for root, dirs, files in self.path.walk():
+            all.append((root, dirs, files))
+            # Don't descend into SUB1.
+            if sub1_path in dirs:
+                # Note that this also mutates the dirs we appended to all!
+                dirs.remove(sub1_path)
+        eq(len(all), 2)
+        eq(all[0], (self.path, [sub2_path], [tmp1_path]))
+        eq(all[1], (sub2_path, [], [tmp3_path]))
+
+
+        ## TODO: more test code: test the top-down attribute, test that one
         ## cannot escape from the directory tree by in-place editing
         ## of the subdirectories list.  TODO: think about error
         ## handling
         
-        
-
