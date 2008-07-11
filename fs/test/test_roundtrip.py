@@ -25,7 +25,7 @@ class OperationsMixin(object):
     def test_open_read_write(self):
         p = self.path.child(u'foo')
         with p.open(u'w') as f:
-            f.write(u'bar')
+            f.write('bar')
         with p.open() as f:
             got = f.read()
         eq(got, u'bar')
@@ -108,7 +108,7 @@ class OperationsMixin(object):
     def test_rename_simple(self):
         a = self.path.child(u'foo')
         with a.open(u'w') as f:
-            f.write(u'bar')
+            f.write('bar')
         b = self.path.child(u'quux')
         a.rename(b)
         # create a new object, just in case a.rename did something
@@ -122,10 +122,10 @@ class OperationsMixin(object):
     def test_rename_overwrite(self):
         old = self.path.child(u'quux')
         with old.open(u'w') as f:
-            f.write(u'old')
+            f.write('old')
         a = self.path.child(u'foo')
         with a.open(u'w') as f:
-            f.write(u'bar')
+            f.write('bar')
         b = self.path.child(u'quux')
         a.rename(b)
         # create a new object, just in case a.rename did something
@@ -139,14 +139,14 @@ class OperationsMixin(object):
     def test_unlink_simple(self):
         a = self.path.child(u'foo')
         with a.open(u'w') as f:
-            f.write(u'bar')
+            f.write('bar')
         a.unlink()
         eq(list(self.path), [])
 
     def test_remove_simple(self):
         a = self.path.child(u'foo')
         with a.open(u'w') as f:
-            f.write(u'bar')
+            f.write('bar')
         a.remove()
         eq(list(self.path), [])
 
