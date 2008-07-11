@@ -268,6 +268,8 @@ class path(object):
 
         If the operation fails, also raise an ``OSError`` exception.
         """
+        # XXX do we care about ``os.readlink`` returning a string or
+        # unicode string?
         return os.readlink(self._pathname)
 
     def size(self):
@@ -279,6 +281,11 @@ class path(object):
         return self.stat().st_size
 
     def unlink(self):
+        """
+        Remove the file or link identified by this path.
+
+        If the item cannot be removed, raise an ``OSError``.
+        """
         os.unlink(self._pathname)
 
     remove = unlink
