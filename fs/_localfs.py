@@ -130,17 +130,39 @@ class path(object):
         represent the same path, i. e. point to the same
         filesystem item. If they don't represent the same
         path, return ``False``.
+
+        Note that the comparison is based on the string
+        representations of the objects. Thus, if one of the
+        paths represents a link to the other, they may be
+        considered not equal though they in some sense
+        represent the same path.
+
+        If the paths cannot be compared, return the constant
+        ``NotImplemented``.
         """
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname == other._pathname
 
     def __ne__(self, other):
+        """
+        Return ``True`` if the compared paths are not equal,
+        else ``False``.
+
+        See the explanations on the equality operator for some
+        background.
+        """
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname != other._pathname
 
     def __lt__(self, other):
+        """
+        Return ``True`` if the left path is string-wise lower
+        than the right, else ``False``.
+
+        Also see the documentation on the equality operator.
+        """
         if not isinstance(other, path):
             return NotImplemented
         return self._pathname < other._pathname
