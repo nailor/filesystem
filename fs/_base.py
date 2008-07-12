@@ -22,12 +22,56 @@ class CrossDeviceRenameError(Exception):
     """
     pass
 
-
 ## TODO: RFC: Is there any presedence for this naming convention?  As
 ## I understand it, "Mixin" means that this class can be mixed into
 ## the parent class list in a class definition to get misc methods
 ## mixed in - but I find this naming convention mostly confusing.  I
 ## think "...Helper" is clearer?  2008-07-12
+class WalkMixin(object):
+    """
+    This class gives the method walk.  If there is no
+    filesystem-specific way to do a walk, and if your file system
+    class implements iteration, parent, isdir and islink, it may
+    inheritate this class.
+    """
+    def walk(self, topdown=True):
+        """Directory tree generator.
+
+        For each directory in the directory tree rooted at top
+        (including top itself), yields a 3-tuple
+
+          (directory, subdirectories, nondirs)
+
+        When topdown is true, the caller can modify the subdirectories
+        list in-place (e.g., via del or slice assignment), and walk
+        will only recurse into the remaining subdirectories.  This can
+        be used to prune the search, or to impose a specific order of
+        visiting.
+
+        TODO: os.walk can handle errors through callbacks, not to
+        interrupt the whole walk on errors.  We should probably do the
+        same.
+
+        TODO: we should have a follow_symlinks flag, but then we also
+        need loop control.
+        """
+        children = list(self)
+        ## TODO: optimize?
+        subdirs = [c for c in children if c.isdir()]
+        nondirs = [c for c in children if not c.isdir()]
+        if topdown:
+            yield (self, subdirs, nondirs)
+        for d in subdirs:
+            if (d.parent() != self):
+                raise InsecurePathError("walk is only allowed into subdirs")
+            if not d.islink():
+                for w in d.walk(topdown):
+                    yield w
+        if not topdown:
+            yield (self, subdirs, nondirs)
+
+    
+
 class PathnameMixin(object):
     """
     Class for dealing with pathnames, to be subclassed by file system

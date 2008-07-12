@@ -4,10 +4,11 @@ import stat
 
 from fs._base import (
     PathnameMixin,
+    WalkMixin,
     InsecurePathError,
     CrossDeviceRenameError)
 
-class path(PathnameMixin):
+class path(PathnameMixin, WalkMixin):
     ## RFC: do we need a chroot method?
     
     def open(self, *args, **kwargs):
@@ -157,42 +158,6 @@ class path(PathnameMixin):
 
     def rmdir(self):
         os.rmdir(self._pathname)
-
-    def walk(self, topdown=True):
-        """Directory tree generator.
-
-        For each directory in the directory tree rooted at top
-        (including top itself), yields a 3-tuple
-
-          (directory, subdirectories, nondirs)
-
-        When topdown is true, the caller can modify the subdirectories
-        list in-place (e.g., via del or slice assignment), and walk
-        will only recurse into the remaining subdirectories.  This can
-        be used to prune the search, or to impose a specific order of
-        visiting.
-
-        TODO: os.walk can handle errors through callbacks, not to
-        interrupt the whole walk on errors.  We should probably do the
-        same.
-
-        TODO: we should have a follow_symlinks flag, but then we also
-        need loop control.
-        """
-        children = list(self)
-        ## TODO: optimize?
-        subdirs = [c for c in children if c.isdir()]
-        nondirs = [c for c in children if not c.isdir()]
-        if topdown:
-            yield (self, subdirs, nondirs)
-        for d in subdirs:
-            if (d.parent() != self):
-                raise InsecurePathError("walk is only allowed into subdirs")
-            if not d.islink():
-                for w in d.walk(topdown):
-                    yield w
-        if not topdown:
-            yield (self, subdirs, nondirs)
 
 root = path(u'/')
 ## RFC: I want every path for every file system to have a root object for identification purposes.
