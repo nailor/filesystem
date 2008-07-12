@@ -268,7 +268,7 @@ class path(object):
 
         If the operation fails, also raise an ``OSError`` exception.
         """
-        # XXX do we care about ``os.readlink`` returning a string or
+        # TODO: do we care about ``os.readlink`` returning a string or
         # unicode string?
         return os.readlink(self._pathname)
 
