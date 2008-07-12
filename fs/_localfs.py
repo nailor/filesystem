@@ -319,11 +319,11 @@ class path(object):
 
           (directory, subdirectories, nondirs)
 
-        TODO: When topdown is true, the caller can modify the
-        subdirectories list in-place (e.g., via del or slice
-        assignment), and walk will only recurse into the remaining
-        subdirectories.  This can be used to prune the search, or to
-        impose a specific order of visiting.
+        When topdown is true, the caller can modify the subdirectories
+        list in-place (e.g., via del or slice assignment), and walk
+        will only recurse into the remaining subdirectories.  This can
+        be used to prune the search, or to impose a specific order of
+        visiting.
 
         TODO: os.walk can handle errors through callbacks, not to
         interrupt the whole walk on errors.  We should probably do the
