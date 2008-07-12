@@ -1,14 +1,14 @@
 import errno
 import os
-import stat
 
 from fs._base import (
     PathnameMixin,
     WalkMixin,
+    StatWrappersMixin,
     InsecurePathError,
     CrossDeviceRenameError)
 
-class path(PathnameMixin, WalkMixin):
+class path(PathnameMixin, WalkMixin, StatWrappersMixin):
     ## RFC: do we need a chroot method?
     
     def open(self, *args, **kwargs):
@@ -62,52 +62,6 @@ class path(PathnameMixin, WalkMixin):
         """
         return os.stat(self._pathname)
 
-    def exists(self):
-        """
-        Return ``True`` if this path actually exists in the concrete
-        filesystem, else return ``False``.
-
-        If there is an error, raise ``OSError``. Note that the
-        non-existence of the path isn't an error, but simply returns
-        ``False``.
-        """
-        try:
-            self.stat()
-        except OSError, e:
-            # ENOENT means the path wasn't found
-            if e.errno == errno.ENOENT:
-                return False
-            else:
-                raise
-        return True
-
-    def isdir(self):
-        """
-        Return ``True`` if the path corresponds to a directory or a
-        symlink to one, else return ``False``.
-
-        Raise an ``OSError`` if the operation fails.
-        """
-        return stat.S_ISDIR(self.stat().st_mode)
-
-    def isfile(self):
-        """
-        Return ``True`` if the path corresponds to a file or a symlink
-        to it, else return ``False``.
-
-        Raise an ``OSError`` if the operation fails.
-        """
-        return stat.S_ISREG(self.stat().st_mode)
-
-    def islink(self):
-        """
-        Return ``True`` if the path corresponds to a symlink, else
-        return ``False``.
-
-        Raise an ``OSError`` if the operation fails.
-        """
-        return stat.S_ISLNK(self.stat().st_mode)
-
     def readlink(self):
         """
         Return the ``path`` as a string to which the link represented
@@ -119,14 +73,6 @@ class path(PathnameMixin, WalkMixin):
         # TODO: do we care about ``os.readlink`` returning a string or
         # unicode string?
         return os.readlink(self._pathname)
-
-    def size(self):
-        """
-        Return the size of the item represented by this path.
-
-        If the path cannot be accessed, raise an ``OSError``.
-        """
-        return self.stat().st_size
 
     def unlink(self):
         """

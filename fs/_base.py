@@ -1,4 +1,6 @@
 import os
+import stat
+import errno
 
 class InsecurePathError(Exception):
     """
@@ -22,11 +24,73 @@ class CrossDeviceRenameError(Exception):
     """
     pass
 
+
 ## TODO: RFC: Is there any presedence for this naming convention?  As
 ## I understand it, "Mixin" means that this class can be mixed into
 ## the parent class list in a class definition to get misc methods
 ## mixed in - but I find this naming convention mostly confusing.  I
 ## think "...Helper" is clearer?  2008-07-12
+class StatWrappersMixin(object):
+    """
+    If a class implements stat(), several other methods can be
+    implemented as wrappers around stat.  Simply pull in this class to
+    get those implemented: exists, isdir, isfile, islink, size. 
+    """
+    def size(self):
+        """
+        Return the size of the item represented by this path.
+
+        If the path cannot be accessed, raise an ``OSError``.
+        """
+        return self.stat().st_size
+
+    def exists(self):
+        """
+        Return ``True`` if this path actually exists in the concrete
+        filesystem, else return ``False``.
+
+        If there is an error, raise ``OSError``. Note that the
+        non-existence of the path isn't an error, but simply returns
+        ``False``.
+        """
+        try:
+            self.stat()
+        except OSError, e:
+            # ENOENT means the path wasn't found
+            if e.errno == errno.ENOENT:
+                return False
+            else:
+                raise
+        return True
+    
+    def isdir(self):
+        """
+        Return ``True`` if the path corresponds to a directory or a
+        symlink to one, else return ``False``.
+
+        Raise an ``OSError`` if the operation fails.
+        """
+        return stat.S_ISDIR(self.stat().st_mode)
+
+    def isfile(self):
+        """
+        Return ``True`` if the path corresponds to a file or a symlink
+        to it, else return ``False``.
+
+        Raise an ``OSError`` if the operation fails.
+        """
+        return stat.S_ISREG(self.stat().st_mode)
+
+    def islink(self):
+        """
+        Return ``True`` if the path corresponds to a symlink, else
+        return ``False``.
+
+        Raise an ``OSError`` if the operation fails.
+        """
+        return stat.S_ISLNK(self.stat().st_mode)
+
+
 class WalkMixin(object):
     """
     This class gives the method walk.  If there is no
