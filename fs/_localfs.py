@@ -40,13 +40,18 @@ class path(PathnameMixin):
 
         If the renaming operation fails, raise an ``OSError``.
         """
-        ## TODO: I think we should support passing new_path as a string
-        
-        ## TODO: We need to catch the equivalent error from os.rename
-        ## as well.  -- tobixen, 2008-07-12
+        ## TODO: RFC: I think we should support passing new_path as a string
+        ## TODO: RFC: when we implement wrapping of OSError / IOError,
+        ## this code should probably be refactored.
         if not hasattr(new_path, 'root') or self.root != new_path.root:
             raise CrossDeviceRenameError()
-        os.rename(self._pathname, new_path._pathname)
+        try:
+            os.rename(self._pathname, new_path._pathname)
+        except OSError, e:
+            if e.errno == errno.EXDEV:
+                raise CrossDeviceRenameError()
+            else:
+                raise
         self._pathname = new_path._pathname
 
     def stat(self):
