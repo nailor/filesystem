@@ -84,6 +84,19 @@ class OperationsMixin(object):
             got = f.read()
             eq(got, 'foobar')
 
+    def test_overwrite(self):
+        """
+        Tests that appending to an existing file works
+        """
+        p = self.path.child(u'foo')
+        with p.open(u'w') as f:
+            f.write('foo')
+        with p.open(u'w') as f:
+            pass
+        with p.open() as f:
+            got = f.read()
+            eq(got, '')
+
     # some implementation might have p1 and p2 be the same object, but
     # that is not required, so identity is not tested in either
     # direction

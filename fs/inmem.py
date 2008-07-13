@@ -14,11 +14,17 @@ class _VirtualFile(StringIO.StringIO):
     """
     A StringIO class that is specialized to be used for the inmem fs.
     """
-    def __init__(self, path):
+    def __init__(self, path, mode=u''):
         ## we'll have to use __dict__ here to get around __setattr__
         self.__dict__['_path'] = path
         self.__dict__['_file'] = path._file
         self.__dict__['pos'] = 0
+        
+        if mode.startswith(u'w'):
+            self.truncate()
+
+        if mode.startswith(u'a'):
+            self.seek(self.len)
 
     def __getattr__(self, item):
         assert item != '_file'
@@ -98,10 +104,10 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         else:
             return ret
 
-    def open(self, mode=u'rw'):
+    def open(self, mode=u'r', *args, **kwargs):
         if not self.exists():
             self._stat = posix.stat_result((stat.S_IFREG + 0777, 0,0,0,0,0,0,0,0,0))
-        return _VirtualFile(self)
+        return _VirtualFile(self, mode)
     
     def mkdir(self, may_exist=False, create_parents=False):
         ## TODO: those lines are copied from _localfs.py, consider refactoring
