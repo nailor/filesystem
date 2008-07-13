@@ -29,10 +29,7 @@ class OperationsMixin(object):
         This will attempt to write to a file and then read the same
         file.  The test also tests that two file handles won't share
         file location, and that the same file can be written to
-        several times.  TODO: This test does not test appending to an
-        existing file, nor that changes flushed in one open file will
-        be immediately readable by other open file. TODO: RFC: split
-        this test into multiple tests?
+        several times.
         """
         ## Make sure write-read is repeatable
         for dummy in (0,1):
@@ -60,6 +57,32 @@ class OperationsMixin(object):
             with p.open() as f:
                 got = f.read(3)
                 eq(got, u'bar')
+
+    def test_flush(self):
+        """
+        Opens two files, writes to one of them, flushes, and asserts
+        the content can be read by the other file.
+        """
+        p = self.path.child(u'foo')
+        with p.open(u'w') as fw:
+            with p.open() as fr:
+                fw.write('barfoo')
+                fw.flush()
+                got = fr.read(3)
+                eq(got, u'bar')
+        
+    def test_append(self):
+        """
+        Tests that appending to an existing file works
+        """
+        p = self.path.child(u'foo')
+        with p.open(u'w') as f:
+            f.write('foo')
+        with p.open(u'a') as f:
+            f.write('bar')
+        with p.open() as f:
+            got = f.read()
+            eq(got, 'foobar')
 
     # some implementation might have p1 and p2 be the same object, but
     # that is not required, so identity is not tested in either
