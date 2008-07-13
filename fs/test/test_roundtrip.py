@@ -25,12 +25,19 @@ class OperationsMixin(object):
     # gives it a empty self.path for every method
 
     def test_open_read_write(self):
-        p = self.path.child(u'foo')
-        with p.open(u'w') as f:
-            f.write('bar')
-        with p.open() as f:
-            got = f.read()
-        eq(got, u'bar')
+        ## Make sure write-read is repeatable
+        for dummy in (0,1):
+            p = self.path.child(u'foo')
+            with p.open(u'w') as f:
+                f.write('bar')
+            with p.open() as f:
+                got = f.read()
+            eq(got, u'bar')
+            ## make sure read is repeatable also by accessing the file
+            ## by name:
+            p = self.path.child(u'foo')
+            with p.open() as f:
+                got = f.read()
 
     # some implementation might have p1 and p2 be the same object, but
     # that is not required, so identity is not tested in either
