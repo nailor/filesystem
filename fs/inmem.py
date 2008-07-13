@@ -14,6 +14,11 @@ class _VirtualFile(StringIO.StringIO):
     """
     A StringIO class that is specialized to be used for the inmem fs.
     """
+    ## This class is a wrapper class, the real content is stored in
+    ## self._path._file, which we for the convenience copy to
+    ## self._path.  Except for self._path and self._file, we keep
+    ## self.pos in this wrapper, since that's the only thing that is
+    ## different between the different open files.
     def __init__(self, path, mode=u''):
         ## we'll have to use __dict__ here to get around __setattr__
         self.__dict__['_path'] = path
@@ -27,7 +32,6 @@ class _VirtualFile(StringIO.StringIO):
             self.seek(self.len)
 
     def __getattr__(self, item):
-        assert item != '_file'
         return getattr(self._file, item)
 
     def __setattr__(self, item, newvalue):
@@ -46,7 +50,20 @@ class _VirtualFile(StringIO.StringIO):
         return self
 
 class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
-    def __init__(self, name='/', parent=None):
+    """
+    An in-memory path.
+
+    In the local file system, the same path can be expressed through
+    equal but distinct objects, in this file system we have only one
+    path object for each distinct path.  Creating a new path object is
+    equivalent with creating a new distinct file system - the file
+    system has to be traversed through .child() or .join()
+    """
+    def __init__(self, name='', parent=None):
+        if u'/' in name:
+            raise InsecurePathError(
+                'use child() or join() to traverse the inmem fs')
+        
         if parent is None:
             self._parent = self
         else:
@@ -55,6 +72,10 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         self._children = {}
         self._stat = ()
         self._file = StringIO.StringIO()
+
+    def __eq__(self, other):
+        ## as said above, two equal paths should always be same object.
+        return self is other
 
     def stat(self):
         if not self._stat:
