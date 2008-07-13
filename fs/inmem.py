@@ -14,25 +14,27 @@ class _VirtualFile(StringIO.StringIO):
     """
     A StringIO class that is specialized to be used for the inmem fs.
     """
-    def __init__(self, path, content=''):
-        self._path = path
-        path._files.add(self)
-        return StringIO.StringIO.__init__(self, content)
+    def __init__(self, path):
+        ## we'll have to use __dict__ here to get around __setattr__
+        self.__dict__['_path'] = path
+        self.__dict__['_file'] = path._file
+        self.__dict__['pos'] = 0
 
-    def flush(self):
-        content = self.getvalue()
-        self._path._content = content
-        ## Update other files.  Hm.  This will break.
-        #for f in self._path._files:
-            #f.truncate()
-            #f.write(content)
-        
-    def close(self):
-        self.flush()
-        self._path._files.remove(self)
+    def __getattr__(self, item):
+        assert item != '_file'
+        return getattr(self._file, item)
+
+    def __setattr__(self, item, newvalue):
+        if item == 'pos':
+            self.__dict__[item] = newvalue
+        else:
+            return setattr(self._file, item, newvalue)
 
     def __exit__(self, a, b, c):
-        return self.close()
+        pass
+
+    def close(self):
+        pass
     
     def __enter__(self):
         return self
@@ -46,8 +48,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         self._name = name
         self._children = {}
         self._stat = ()
-        self._files = set()
-        self._content = ""
+        self._file = StringIO.StringIO()
 
     def stat(self):
         if not self._stat:
@@ -64,12 +65,10 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
 
     def rename(self, newpath):
         newpath.parent().mkdir(may_exist=True, create_parents=True)
-        newpath._files = self._files
-        newpath._content = self._content
+        newpath._file = self._file
         newpath._children = self._children
         newpath._stat = self._stat
-        self._files = None
-        self._content = ""
+        self._file = None
         self._children = {}
         self._stat = ()
         return newpath
@@ -102,7 +101,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
     def open(self, mode=u'rw'):
         if not self.exists():
             self._stat = posix.stat_result((stat.S_IFREG + 0777, 0,0,0,0,0,0,0,0,0))
-        return _VirtualFile(self, self._content)
+        return _VirtualFile(self)
     
     def mkdir(self, may_exist=False, create_parents=False):
         ## TODO: those lines are copied from _localfs.py, consider refactoring
