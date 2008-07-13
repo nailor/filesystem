@@ -126,7 +126,7 @@ class WalkMixin(object):
         if topdown:
             yield (self, subdirs, nondirs)
         for d in subdirs:
-            if (d.parent() != self):
+            if (d.parent() != self or d == self):
                 raise InsecurePathError("walk is only allowed into subdirs")
             if not d.islink():
                 for w in d.walk(topdown):
@@ -308,3 +308,97 @@ class PathnameMixin(object):
         Also see the documentation on the equality operator.
         """
         return self > other or self == other
+
+    
+class SimpleComparitionMixin(object):
+    """
+    This class implements the equity/comparition-methods using
+    self.name() and self.parent().  Not compatible with the
+    PathnameMixin class.
+    """
+    def _incomparable(self, other):
+        """
+        Returns ``NotImplemented`` if the other object is considered
+        incomparable, and ``False`` if the other object is considered
+        comparable.  Can be used like:
+        
+            return (self._incomparable(other) or
+                    other._pathname == self._pathname)
+        """
+        for name in ('root', 'parent', 'name'):
+            if not hasattr(other, name):
+                return NotImplemented
+        return False
+
+    def __eq__(self, other):
+        if self._incomparable(other):
+            return NotImplemented
+        if self.parent() is self and other.parent() is other:
+            return self.parent().name() == other.parent().name()
+        return (self.root is other.root and
+                self.parent() == other.parent() and
+                self.name() == other.name())
+
+    def __ne__(self, other):
+        """
+        Return ``True`` if the compared paths are not equal, else
+        ``False``.
+
+        See the explanations on the equality operator for some
+        background.
+        """
+        return (self._incomparable(other) or
+                not self == other)
+
+
+    def __lt__(self, other):
+        """
+        Return ``True`` if the left path is string-wise lower than the
+        right, else ``False``.
+
+        Also see the documentation on the equality operator.
+        """
+        if self._incomparable(other):
+            return NotImplemented
+        if self.parent() is self and other.parent() is other:
+            return self.name() < other.name()
+        return (self.parent() <= other.parent() and
+                self.name() < other.name())
+
+    def __le__(self, other):
+        """
+        Return ``True`` if the left path is string-wise lower than or
+        equal to the right. Else return ``False``.
+
+        Also see the documentation on the equality operator.
+        """
+        return self < other or self == other
+
+    def __gt__(self, other):
+        """
+        Return ``True`` if the left path is string-wise greater than
+        the right. Else return ``False``.
+
+        Also see the documentation on the equality operator.
+        """
+        return not self <= other
+
+    def __ge__(self, other):
+        """
+        Return ``True`` if the left path is string-wise greater than
+        or equal to the right. Else return ``False``.
+
+        Also see the documentation on the equality operator.
+        """
+        return not self < other
+
+    def __unicode__(self):
+        if self.parent() == self:
+            return u'/'
+        return str(self.parent())+ u'/' + self.name()
+
+    def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, str(self))

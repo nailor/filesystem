@@ -33,7 +33,6 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
         for item in os.listdir(self._pathname):
             yield self.child(item)
 
-
     def rename(self, new_path):
         """
         Rename this path a new path ``new_path`` (a ``path`` object).
@@ -54,6 +53,7 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
             else:
                 raise
         self._pathname = new_path._pathname
+        return self
 
     def stat(self):
         """
@@ -89,11 +89,13 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
         Creates the path.  may_exists will ignore dir exists
         exceptions
         """
+        ## TODO: logics to handle create_parents is already copied into inmem.py
+        ## Consider refactoring out if it's needed in more classes.
         if create_parents:
             if self.parent() == self:
                 return
-
             self.parent().mkdir(create_parents=True, may_exist=True)
+            
         try:
             os.mkdir(self._pathname)
         except OSError, e:

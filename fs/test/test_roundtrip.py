@@ -112,7 +112,7 @@ class OperationsMixin(object):
         with a.open(u'w') as f:
             f.write('bar')
         b = self.path.child(u'quux')
-        a.rename(b)
+        a = a.rename(b)
         # create a new object, just in case a.rename did something
         # weird to b
         c = self.path.child(u'quux')
@@ -129,7 +129,7 @@ class OperationsMixin(object):
         with a.open(u'w') as f:
             f.write('bar')
         b = self.path.child(u'quux')
-        a.rename(b)
+        a = a.rename(b)
         # create a new object, just in case a.rename did something
         # weird to b
         c = self.path.child(u'quux')
@@ -153,6 +153,7 @@ class OperationsMixin(object):
         eq(list(self.path), [])
 
     def test_mkdir(self):
+        eq(list(self.path), [])
         self.path.child(u'foo').mkdir()
         eq(list(self.path), [self.path.child(u'foo')])
         # create a new object, just in case .mkdir() stored something
@@ -177,9 +178,13 @@ class OperationsMixin(object):
         eq(self.path.join(u'newdir/subdir1/subdir2').isdir(), True)
 
     def test_rmdir(self):
+        assert self.path.exists()
         p = self.path.child(u'foo')
+        assert not p.exists()
         p.mkdir()
+        assert p.exists()
         p.rmdir()
+        assert not p.exists()
         eq(list(self.path), [])
         # create a new object, just in case .rmdir() stored something
         # in p
@@ -272,7 +277,6 @@ class OperationsMixin(object):
         dir_list = [path_tuple[0].name() for path_tuple in all]
         expected1 = ['SUB11', 'SUB1', 'SUB2', self.path.name()]
         expected2 = ['SUB2', 'SUB11', 'SUB1', self.path.name()]
-        eq(dir_list, expected1)
         assert dir_list in (expected1, expected2)
 
         ## TODO: we should do a complete test, just the reverse of
