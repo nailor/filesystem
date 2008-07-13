@@ -138,6 +138,8 @@ class WalkMixin(object):
 
 class PathnameMixin(object):
     """
+    This class asserts self._pathname exists
+    
     Class for dealing with pathnames, to be subclassed by file system
     implementations where such path name handling is useful.
 
