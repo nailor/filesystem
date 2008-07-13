@@ -29,15 +29,29 @@ class OperationsMixin(object):
         for dummy in (0,1):
             p = self.path.child(u'foo')
             with p.open(u'w') as f:
-                f.write('bar')
+                f.write('barfoo')
             with p.open() as f:
-                got = f.read()
-            eq(got, u'bar')
+                got = f.read(3)
+                eq(got, u'bar')
+                
+                ## assert that a newly opened file towards same
+                ## path starts at the beginning of the file
+                with p.open() as f2:
+                    got = f2.read(3)
+                    eq(got, u'bar')
+
+                ## assert that the previous read on another file
+                ## descriptor won't affect the file position of f
+                got = f.read(3)
+                eq(got, u'foo')
+                    
+                    
             ## make sure read is repeatable also by accessing the file
             ## by name:
             p = self.path.child(u'foo')
             with p.open() as f:
-                got = f.read()
+                got = f.read(3)
+                eq(got, u'bar')
 
     # some implementation might have p1 and p2 be the same object, but
     # that is not required, so identity is not tested in either
