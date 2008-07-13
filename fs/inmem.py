@@ -10,24 +10,26 @@ import posix
 import StringIO
 import errno
 
-class VirtualFile(StringIO.StringIO):
+class _VirtualFile(StringIO.StringIO):
+    """
+    A StringIO class that is specialized to be used for the inmem fs.
+    """
     def __init__(self, path, content=''):
         self._path = path
-        path._file = self
-        self.opencnt = 0
-        self._content = u""
+        path._files.add(self)
         return StringIO.StringIO.__init__(self, content)
 
-    def open(self, mode=u'rw'):
-        self.opencnt += 1
-        return VirtualFile(self._path, self._content)
-
     def flush(self):
-        self._content = self.getvalue()
+        content = self.getvalue()
+        self._path._content = content
+        ## Update other files.  Hm.  This will break.
+        #for f in self._path._files:
+            #f.truncate()
+            #f.write(content)
         
     def close(self):
-        self.opencnt -= 1;
         self.flush()
+        self._path._files.remove(self)
 
     def __exit__(self, a, b, c):
         return self.close()
@@ -44,7 +46,8 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         self._name = name
         self._children = {}
         self._stat = ()
-        self._file = None
+        self._files = set()
+        self._content = ""
 
     def stat(self):
         if not self._stat:
@@ -61,10 +64,12 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
 
     def rename(self, newpath):
         newpath.parent().mkdir(may_exist=True, create_parents=True)
-        newpath._file = self._file
+        newpath._files = self._files
+        newpath._content = self._content
         newpath._children = self._children
         newpath._stat = self._stat
-        self._file = None
+        self._files = None
+        self._content = ""
         self._children = {}
         self._stat = ()
         return newpath
@@ -95,11 +100,9 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
             return ret
 
     def open(self, mode=u'rw'):
-        if self._file is None:
-            self._file = VirtualFile(self)
         if not self.exists():
             self._stat = posix.stat_result((stat.S_IFREG + 0777, 0,0,0,0,0,0,0,0,0))
-        return self._file.open(mode)
+        return _VirtualFile(self, self._content)
     
     def mkdir(self, may_exist=False, create_parents=False):
         ## TODO: those lines are copied from _localfs.py, consider refactoring

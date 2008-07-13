@@ -25,6 +25,15 @@ class OperationsMixin(object):
     # gives it a empty self.path for every method
 
     def test_open_read_write(self):
+        """
+        This will attempt to write to a file and then read the same
+        file.  The test also tests that two file handles won't share
+        file location, and that the same file can be written to
+        several times.  TODO: This test does not test appending to an
+        existing file, nor that changes flushed in one open file will
+        be immediately readable by other open file. TODO: RFC: split
+        this test into multiple tests?
+        """
         ## Make sure write-read is repeatable
         for dummy in (0,1):
             p = self.path.child(u'foo')
@@ -44,7 +53,6 @@ class OperationsMixin(object):
                 ## descriptor won't affect the file position of f
                 got = f.read(3)
                 eq(got, u'foo')
-                    
                     
             ## make sure read is repeatable also by accessing the file
             ## by name:
