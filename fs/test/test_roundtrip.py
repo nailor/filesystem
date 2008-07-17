@@ -101,6 +101,22 @@ class OperationsMixin(object):
     # that is not required, so identity is not tested in either
     # direction
 
+    def test_getsize(self):
+        """
+        Test that will write a fixed length byte string to a file,
+        close it and check that the file size is in the right
+        ballpark.  Some bytes extra is acceptable for end-of-line
+        markers, end-of-file markers, etc.
+        """
+        bytestring = 'abcd' * 128
+        eq(len(bytestring), 512)
+        p = self.path.child(u'foo')
+        with p.open(u'w') as f:
+            f.write(bytestring)
+        filesize = p.size()
+        assert filesize >= 512
+        assert filesize <= 516
+
     def test_eq_positive(self):
         a = self.path.child(u'foo')
         b = self.path.child(u'foo')

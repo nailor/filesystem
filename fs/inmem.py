@@ -82,7 +82,11 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
             e = OSError()
             e.errno = errno.ENOENT
             raise e
-        return self._stat
+        if self._file:
+            self._stat[6] = self._file.len
+        ## bloat ... turning a list to a sequence to a stat_result object ;-)
+        ## Well, StringIO implementation is not quite optimal anyway ;-)
+        return posix.stat_result(list(self._stat))
 
     def parent(self):
         return self._parent
@@ -127,7 +131,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
 
     def open(self, mode=u'r', *args, **kwargs):
         if not self.exists():
-            self._stat = posix.stat_result((stat.S_IFREG + 0777, 0,0,0,0,0,0,0,0,0))
+            self._stat = [stat.S_IFREG + 0777, 0,0,0,0,0,0,0,0,0]
         return _VirtualFile(self, mode)
     
     def mkdir(self, may_exist=False, create_parents=False):
@@ -147,7 +151,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
                 err.errno = errno.EEXIST
                 raise err
         else:
-            self._stat = posix.stat_result((stat.S_IFDIR+0777, 0,0,0,0,0,0,0,0,0))
+            self._stat = [stat.S_IFDIR+0777, 0,0,0,0,0,0,0,0,0]
     
     def __iter__(self):
         return [x for x in self._children.values() if x.exists()].__iter__()

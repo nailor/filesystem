@@ -37,6 +37,7 @@ def test_stat_missing_file():
     e = assert_raises(OSError, p.stat)
     eq(e.errno, errno.ENOENT)
 
+## TODO: RFC: we can delete this because it's duplicated in roundtest?
 def test_stat_size():
     # set up
     temp_dir = maketemp()
