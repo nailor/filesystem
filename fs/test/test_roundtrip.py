@@ -204,7 +204,11 @@ class OperationsMixin(object):
         with a.open(u'w') as f:
             f.write('bar')
         b = self.path.child(u'quux')
-        a = a.rename(b)
+        got = a.rename(b)
+        assert got is None, \
+            'Rename should not return anything, got: %r' % got
+        # a should have mutated to equal b
+        eq(a, b)
         # create a new object, just in case a.rename did something
         # weird to b
         c = self.path.child(u'quux')
@@ -221,7 +225,11 @@ class OperationsMixin(object):
         with a.open(u'w') as f:
             f.write('bar')
         b = self.path.child(u'quux')
-        a = a.rename(b)
+        got = a.rename(b)
+        assert got is None, \
+            'Rename should not return anything, got: %r' % got
+        # a should have mutated to equal b
+        eq(a, b)
         # create a new object, just in case a.rename did something
         # weird to b
         c = self.path.child(u'quux')

@@ -99,10 +99,8 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         newpath._file = self._file
         newpath._children = self._children
         newpath._stat = self._stat
-        self._file = None
-        self._children = {}
-        self._stat = ()
-        return newpath
+        self._name = newpath._name
+        self._parent = newpath._parent
 
     def unlink(self):
         self._file = None
