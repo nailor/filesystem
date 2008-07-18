@@ -73,9 +73,9 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         self._stat = ()
         self._file = StringIO.StringIO()
 
-    def __eq__(self, other):
+    #def __eq__(self, other):
         ## as said above, two equal paths should always be same object.
-        return self is other
+        #return self is other
 
     def stat(self):
         if not self._stat:
