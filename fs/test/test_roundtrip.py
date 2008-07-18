@@ -248,6 +248,7 @@ class OperationsMixin(object):
         a = self.path.child(u'foo')
         with a.open(u'w') as f:
             f.write('bar')
+        eq(list(self.path), [a])
         a.unlink()
         eq(list(self.path), [])
 
@@ -255,6 +256,7 @@ class OperationsMixin(object):
         a = self.path.child(u'foo')
         with a.open(u'w') as f:
             f.write('bar')
+        eq(list(self.path), [a])
         a.remove()
         eq(list(self.path), [])
 
