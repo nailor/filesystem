@@ -54,10 +54,12 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
     An in-memory path.
 
     In the local file system, the same path can be expressed through
-    equal but distinct objects, in this file system we have only one
-    path object for each distinct path.  Creating a new path object is
-    equivalent with creating a new distinct file system - the file
-    system has to be traversed through .child() or .join()
+    equal but distinct objects, in this file system we should have
+    only one path object for each distinct path (TODO: rename breaks
+    with this.  It's the only way to follow the API.  RFC: Should the
+    API be changed?).  Creating a new path object is equivalent with
+    creating a new distinct file system - the file system has to be
+    traversed through .child() or .join()
     """
     def __init__(self, name='', parent=None):
         if u'/' in name:
