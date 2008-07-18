@@ -230,6 +230,20 @@ class OperationsMixin(object):
             got = f.read()
         eq(got, u'bar')
 
+    def test_rename_dir(self):
+        a = self.path.child('foo')
+        a.mkdir()
+        with a.child(u'thud').open(u'w') as f:
+            f.write('bar')
+        b = self.path.child('quux')
+        a.rename(b)
+        # create a new object, just in case a.rename did something
+        # weird to b
+        c = self.path.child(u'quux')
+        with c.child('thud').open() as f:
+            got = f.read()
+        eq(got, u'bar')
+
     def test_unlink_simple(self):
         a = self.path.child(u'foo')
         with a.open(u'w') as f:
