@@ -70,7 +70,20 @@ class OperationsMixin(object):
                 fw.flush()
                 got = fr.read(3)
                 eq(got, u'bar')
-        
+
+    def test_flush_independent(self):
+        p1 = self.path.child(u'foo')
+        p2 = self.path.child(u'foo')
+        # most often p1 is not p2, but that's not required;
+        # however, this test is embarassingly easy for any
+        # fs where that is true..
+        with p1.open(u'w') as fw:
+            with p2.open() as fr:
+                fw.write('barfoo')
+                fw.flush()
+                got = fr.read(3)
+                eq(got, u'bar')
+
     def test_append(self):
         """
         Tests that appending to an existing file works
