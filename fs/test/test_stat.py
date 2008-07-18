@@ -37,12 +37,6 @@ def test_stat_missing_file():
     e = assert_raises(OSError, p.stat)
     eq(e.errno, errno.ENOENT)
 
-## test_stat_size is moved to test_roundtrip.py
-
-def test_size_of_nonexisting_item():
-    p = fs.path(u"non-existent-item")
-    assert_raises(OSError, p.size)
-
 def test_dir():
     temp_dir = maketemp()
     p = fs.path(temp_dir)

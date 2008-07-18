@@ -114,7 +114,7 @@ class OperationsMixin(object):
     # that is not required, so identity is not tested in either
     # direction
 
-    def test_getsize(self):
+    def test_size(self):
         """
         Test that will write a fixed length byte string to a file,
         close it and check that the file size is correct.
@@ -126,7 +126,11 @@ class OperationsMixin(object):
             f.write(bytestring)
         filesize = p.size()
         eq(filesize, 512)
-        assert filesize <= 516
+
+    def test_size_of_nonexisting_item(self):
+        p = self.path.child(u"non-existent-item")
+        e = assert_raises(OSError, p.size)
+        eq(e.errno, errno.ENOENT)
 
     def test_eq_positive(self):
         a = self.path.child(u'foo')
