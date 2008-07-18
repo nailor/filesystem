@@ -283,6 +283,12 @@ class OperationsMixin(object):
         self.path.join(u'newdir/subdir1/subdir2').mkdir(create_parents=True)
         eq(self.path.join(u'newdir/subdir1/subdir2').isdir(), True)
 
+    def test_mkdir_bad_exists_file(self):
+        with self.path.child(u'foo').open('w') as f:
+            f.write('FOO')
+        e = assert_raises(OSError, self.path.child(u'foo').mkdir)
+        eq(e.errno, errno.EEXIST)
+
     def test_rmdir(self):
         assert self.path.exists()
         p = self.path.child(u'foo')
