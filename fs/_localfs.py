@@ -54,7 +54,6 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
             else:
                 raise
         self._pathname = new_path._pathname
-        return self
 
     def stat(self):
         """

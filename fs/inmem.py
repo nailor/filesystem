@@ -54,10 +54,12 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
     An in-memory path.
 
     In the local file system, the same path can be expressed through
-    equal but distinct objects, in this file system we have only one
-    path object for each distinct path.  Creating a new path object is
-    equivalent with creating a new distinct file system - the file
-    system has to be traversed through .child() or .join()
+    equal but distinct objects, in this file system we should have
+    only one path object for each distinct path (TODO: rename breaks
+    with this.  It's the only way to follow the API.  RFC: Should the
+    API be changed?).  Creating a new path object is equivalent with
+    creating a new distinct file system - the file system has to be
+    traversed through .child() or .join()
     """
     def __init__(self, name='', parent=None):
         if u'/' in name:
@@ -73,9 +75,9 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         self._stat = ()
         self._file = StringIO.StringIO()
 
-    def __eq__(self, other):
+    #def __eq__(self, other):
         ## as said above, two equal paths should always be same object.
-        return self is other
+        #return self is other
 
     def stat(self):
         if not self._stat:
@@ -99,10 +101,8 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         newpath._file = self._file
         newpath._children = self._children
         newpath._stat = self._stat
-        self._file = None
-        self._children = {}
-        self._stat = ()
-        return newpath
+        self._name = newpath._name
+        self._parent = newpath._parent
 
     def unlink(self):
         self._file = None
