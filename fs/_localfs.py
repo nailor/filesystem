@@ -6,7 +6,8 @@ from fs._base import (
     WalkMixin,
     StatWrappersMixin,
     InsecurePathError,
-    CrossDeviceRenameError)
+    CrossDeviceRenameError,
+    )
 
 class path(PathnameMixin, WalkMixin, StatWrappersMixin):
     ## RFC: do we need a chroot method?
