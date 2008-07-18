@@ -37,17 +37,7 @@ def test_stat_missing_file():
     e = assert_raises(OSError, p.stat)
     eq(e.errno, errno.ENOENT)
 
-## TODO: RFC: we can delete this because it's duplicated in roundtest?
-def test_stat_size():
-    # set up
-    temp_dir = maketemp()
-    s = 'bar'
-    foo = os.path.join(temp_dir, u'foo')
-    with open(foo, 'w') as f:
-        f.write(s)
-    # test
-    p = fs.path(foo)
-    eq(p.stat().st_size, len(s))
+## test_stat_size is moved to test_roundtrip.py
 
 def test_size_of_nonexisting_item():
     p = fs.path(u"non-existent-item")

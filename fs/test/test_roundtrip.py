@@ -104,17 +104,15 @@ class OperationsMixin(object):
     def test_getsize(self):
         """
         Test that will write a fixed length byte string to a file,
-        close it and check that the file size is in the right
-        ballpark.  Some bytes extra is acceptable for end-of-line
-        markers, end-of-file markers, etc.
+        close it and check that the file size is correct.
         """
         bytestring = 'abcd' * 128
         eq(len(bytestring), 512)
         p = self.path.child(u'foo')
-        with p.open(u'w') as f:
+        with p.open(u'wb') as f:
             f.write(bytestring)
         filesize = p.size()
-        assert filesize >= 512
+        eq(filesize, 512)
         assert filesize <= 516
 
     def test_eq_positive(self):
