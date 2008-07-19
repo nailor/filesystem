@@ -19,6 +19,7 @@ from fs.test.util import (
 from fs import InsecurePathError
 
 import errno
+import stat
 
 class OperationsMixin(object):
     # the actual tests; subclass this and provide a setUp method that
@@ -40,7 +41,16 @@ class OperationsMixin(object):
         assert(p.isfile() is True)
         assert(p.isdir() is False)
         assert(p.islink() is False)
+        s = p.stat()
+        assert(stat.S_ISREG(s.st_mode) is True)
+    
 
+    def test_stat_missing_file(self):
+        p = self.path.child('inexistent_file')
+        e = assert_raises(OSError, p.stat)
+        eq(e.errno, errno.ENOENT)
+        assert(p.exists() is False)
+    
     def test_dir(self):
         """
         Test that takes our testing root dir and asserts it's a dir
@@ -51,6 +61,8 @@ class OperationsMixin(object):
         assert(p.isdir() is True)
         assert(p.isfile() is False)
         assert(p.islink() is False)
+        s = p.stat()
+        assert(stat.S_ISDIR(s.st_mode) is True)
 
     def test_open_read_write(self):
         """
