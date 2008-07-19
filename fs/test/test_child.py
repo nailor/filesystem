@@ -12,10 +12,6 @@ def test_simple():
     path = fs.root.child(u'tmp')
     eq(str(path), u'/tmp')
 
-def test_no_segments():
-    got = fs.root.child()
-    assert got is fs.root
-
 def test_bad_slash():
     e = assert_raises(fs.InsecurePathError, fs.root.child, u'ev/il')
     eq(

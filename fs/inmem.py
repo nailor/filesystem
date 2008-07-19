@@ -117,7 +117,10 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
             raise InsecurePathError('path name to join must be relative')
         return self.child(*relpath.split('/'))
 
-    def child(self, segment, *segments):
+    def child(self, segment=None, *segments):
+        if segment is None:
+            return self
+        
         if not self._children.has_key(segment):
             child = self.__class__(segment, self)
             self._children[segment] = child

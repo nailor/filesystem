@@ -98,6 +98,10 @@ class OperationsMixin(object):
                 got = f.read(3)
                 eq(got, u'bar')
 
+    def test_child_no_segments(self):
+        got = self.path.child()
+        assert got is self.path
+
     def test_flush(self):
         """
         Opens two files, writes to one of them, flushes, and asserts
