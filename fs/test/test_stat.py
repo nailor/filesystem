@@ -37,6 +37,8 @@ def test_stat_missing_file():
     e = assert_raises(OSError, p.stat)
     eq(e.errno, errno.ENOENT)
 
+## TODO: I think the following two tests can be removed, as they are
+## almost duplicated in the roundtrip test?
 def test_dir():
     temp_dir = maketemp()
     p = fs.path(temp_dir)
@@ -58,13 +60,4 @@ def test_file():
     assert(p.isdir() is False)
     assert(p.islink() is False)
 
-def test_size():
-    # set up
-    temp_dir = maketemp()
-    s = 'bar'
-    foo = os.path.join(temp_dir, u'foo')
-    with open(foo, 'w') as f:
-        f.write(s)
-    # test
-    p = fs.path(foo)
-    eq(p.size(), len(s))
+## test_size moved to the roundtrip test

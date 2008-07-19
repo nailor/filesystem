@@ -24,6 +24,34 @@ class OperationsMixin(object):
     # the actual tests; subclass this and provide a setUp method that
     # gives it a empty self.path for every method
 
+
+    def test_file(self):
+        """
+        Test that writes to a file and assert that it's a file and not
+        a dir or link.  Copied from test_stat.py
+        """
+        # set up
+        foo = self.path.child(u'foo')
+        with foo.open(u'w') as f:
+            f.write('bar')
+        # test
+        p = self.path.child(u'foo')
+        assert(p.exists() is True)
+        assert(p.isfile() is True)
+        assert(p.isdir() is False)
+        assert(p.islink() is False)
+
+    def test_dir(self):
+        """
+        Test that takes our testing root dir and asserts it's a dir
+        and not a file.  Copied from test_stat.py.
+        """
+        p = self.path
+        assert(p.exists() is True)
+        assert(p.isdir() is True)
+        assert(p.isfile() is False)
+        assert(p.islink() is False)
+
     def test_open_read_write(self):
         """
         This will attempt to write to a file and then read the same
@@ -126,6 +154,7 @@ class OperationsMixin(object):
             f.write(bytestring)
         filesize = p.size()
         eq(filesize, 512)
+        eq(p.stat().st_size, 512)
 
     def test_size_of_nonexisting_item(self):
         p = self.path.child(u"non-existent-item")
