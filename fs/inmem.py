@@ -157,6 +157,13 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
             self._stat = [stat.S_IFDIR+0777, 0,0,0,0,0,0,0,0,0]
     
     def __iter__(self):
+        if not self.isdir():
+            e = OSError()
+            if self.isfile():
+                e.errno = errno.ENOTDIR
+            else:
+                e.errno = errno.ENOENT
+            raise e
         return [x for x in self._children.values() if x.exists()].__iter__()
 
 root = path()

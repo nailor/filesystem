@@ -98,6 +98,33 @@ class OperationsMixin(object):
                 got = f.read(3)
                 eq(got, u'bar')
 
+    def test_iter(self):
+        temp_files = ['file1', 'file2', 'file3']
+        # put some files in the temporary directory
+        for i in temp_files:
+            f = self.path.child(i).open(u'w')
+            f.close()
+        # see whether we actually get the file names with the iterator
+        p = self.path
+        files = (sorted(str(x) for x in p))
+        eq(len(files), 3)
+        for got,expected in zip(files, temp_files):
+            assert expected in got
+            
+
+    def test_not_directory(self):
+        # prepare a file on which to call the iterator
+        f = self.path.child("some_file").open(u"w")
+        f.close()
+        # check reaction on getting the iterator
+        p = self.path.child("some_file")
+        try:
+            iterator = iter(p)
+            iterator.next()
+            assert False ## TODO: better error handling?
+        except OSError:
+            pass
+    
     def test_child_no_segments(self):
         got = self.path.child()
         assert got is self.path
