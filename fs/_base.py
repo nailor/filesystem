@@ -246,73 +246,9 @@ class PathnameMixin(object):
             return NotImplemented
         return False
 
-    def __eq__(self, other):
-        """
-        Return ``True`` if the two compared ``path`` objects represent
-        the same path, i. e. point to the same filesystem item. If
-        they don't represent the same path, return ``False``.
-
-        Note that the comparison is based on the string
-        representations of the objects. Thus, if one of the paths
-        represents a link to the other, they may be considered not
-        equal though they in some sense represent the same path.
-
-        If the paths cannot be compared, return the constant
-        ``NotImplemented``.
-        """
+    def __cmp__(self, other):
         return (self._incomparable(other) or
-                self._pathname == other._pathname)
-
-    def __ne__(self, other):
-        """
-        Return ``True`` if the compared paths are not equal, else
-        ``False``.
-
-        See the explanations on the equality operator for some
-        background.
-        """
-        return (self._incomparable(other) or
-                self._pathname != other._pathname)
-
-
-    def __lt__(self, other):
-        """
-        Return ``True`` if the left path is string-wise lower than the
-        right, else ``False``.
-
-        Also see the documentation on the equality operator.
-        """
-        return (self._incomparable(other) or
-                self._pathname < other._pathname)
-
-    def __le__(self, other):
-        """
-        Return ``True`` if the left path is string-wise lower than or
-        equal to the right. Else return ``False``.
-
-        Also see the documentation on the equality operator.
-        """
-        return self < other or self == other
-
-    def __gt__(self, other):
-        """
-        Return ``True`` if the left path is string-wise greater than
-        the right. Else return ``False``.
-
-        Also see the documentation on the equality operator.
-        """
-        return (self._incomparable(other) or
-                self._pathname > other._pathname)
-
-    def __ge__(self, other):
-        """
-        Return ``True`` if the left path is string-wise greater than
-        or equal to the right. Else return ``False``.
-
-        Also see the documentation on the equality operator.
-        """
-        return self > other or self == other
-
+                cmp(self._pathname, other._pathname))
     
 class SimpleComparitionMixin(object):
     """
@@ -334,67 +270,17 @@ class SimpleComparitionMixin(object):
                 return NotImplemented
         return False
 
-    def __eq__(self, other):
+    def __cmp__(self, other):
         if self._incomparable(other):
             return NotImplemented
+        
+        ## root object
         if self.parent() is self and other.parent() is other:
-            return self.parent().name() == other.parent().name()
-        return (self.root is other.root and
-                self.parent() == other.parent() and
-                self.name() == other.name())
-
-    def __ne__(self, other):
-        """
-        Return ``True`` if the compared paths are not equal, else
-        ``False``.
-
-        See the explanations on the equality operator for some
-        background.
-        """
-        return (self._incomparable(other) or
-                not self == other)
-
-
-    def __lt__(self, other):
-        """
-        Return ``True`` if the left path is string-wise lower than the
-        right, else ``False``.
-
-        Also see the documentation on the equality operator.
-        """
-        if self._incomparable(other):
-            return NotImplemented
-        if self.parent() is self and other.parent() is other:
-            return self.name() < other.name()
-        return (self.parent() <= other.parent() and
-                self.name() < other.name())
-
-    def __le__(self, other):
-        """
-        Return ``True`` if the left path is string-wise lower than or
-        equal to the right. Else return ``False``.
-
-        Also see the documentation on the equality operator.
-        """
-        return self < other or self == other
-
-    def __gt__(self, other):
-        """
-        Return ``True`` if the left path is string-wise greater than
-        the right. Else return ``False``.
-
-        Also see the documentation on the equality operator.
-        """
-        return not self <= other
-
-    def __ge__(self, other):
-        """
-        Return ``True`` if the left path is string-wise greater than
-        or equal to the right. Else return ``False``.
-
-        Also see the documentation on the equality operator.
-        """
-        return not self < other
+            return cmp(self.name(), other.name())
+        
+        ## compare parents ... and if they are equal, compare name
+        return (cmp(self.parent(), other.parent()) or
+                  cmp(self.name(), other.name()))
 
     def __unicode__(self):
         if self.parent() == self:
