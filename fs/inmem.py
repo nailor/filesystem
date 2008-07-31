@@ -119,7 +119,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         return self.child(*relpath.split(u'/'))
 
     def child(self, segment=None, *segments):
-        if segment is None:
+        if not segment:
             return self
         
         if not self._children.has_key(segment):
@@ -145,7 +145,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
             self.parent().mkdir(create_parents=True, may_exist=True)
         elif not create_parents:
             if not self.parent().exists():
-                err = OSError()
+                err = OSError("parent directory does not exist")
                 err.errno = errno.ENOENT
                 raise err
 

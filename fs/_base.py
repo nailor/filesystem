@@ -219,6 +219,8 @@ class PathnameMixin(object):
         object on which this method is called. The result is the path
         one level up.
         """
+        if self._pathname=='/':
+            return self
         head, tail = os.path.split(self._pathname)
         if head == '':
             head = '.'
@@ -273,7 +275,7 @@ class SimpleComparitionMixin(object):
     def __cmp__(self, other):
         if self._incomparable(other):
             return NotImplemented
-        
+
         ## root object
         if self.parent() is self and other.parent() is other:
             return cmp(self.name(), other.name())
