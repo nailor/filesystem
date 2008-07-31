@@ -61,11 +61,11 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
     creating a new distinct file system - the file system has to be
     traversed through .child() or .join()
     """
-    def __init__(self, name='', parent=None):
+    def __init__(self, name=u'', parent=None):
         if u'/' in name:
             ## TODO: untested code line
             raise fs.InsecurePathError(
-                'use child() or join() to traverse the inmem fs')
+                u'use child() or join() to traverse the inmem fs')
         
         if parent is None:
             self._parent = self
@@ -115,8 +115,8 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
 
     def join(self, relpath):
         if relpath.startswith(u'/'):
-            raise fs.InsecurePathError('path name to join must be relative')
-        return self.child(*relpath.split('/'))
+            raise fs.InsecurePathError(u'path name to join must be relative')
+        return self.child(*relpath.split(u'/'))
 
     def child(self, segment=None, *segments):
         if segment is None:
