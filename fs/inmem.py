@@ -63,7 +63,8 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
     """
     def __init__(self, name='', parent=None):
         if u'/' in name:
-            raise InsecurePathError(
+            ## TODO: untested code line
+            raise fs.InsecurePathError(
                 'use child() or join() to traverse the inmem fs')
         
         if parent is None:
@@ -114,7 +115,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
 
     def join(self, relpath):
         if relpath.startswith(u'/'):
-            raise InsecurePathError('path name to join must be relative')
+            raise fs.InsecurePathError('path name to join must be relative')
         return self.child(*relpath.split('/'))
 
     def child(self, segment=None, *segments):

@@ -50,6 +50,20 @@ class OperationsMixin(object):
         e = assert_raises(OSError, p.stat)
         eq(e.errno, errno.ENOENT)
         assert(p.exists() is False)
+
+    def test_join_with_leading_slash(self):
+        """
+        join with a leading slash should normally throw an
+        InsecurePathError - though it may be differently implemented
+        from fs to fs.
+
+        Rationale for this test is just to excersise this condition;
+        there was a bug in the in-memory fs.
+        """
+        try:
+            self.path.join('/tmp')
+        except InsecurePathError:
+            pass
     
     def test_dir(self):
         """
