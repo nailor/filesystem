@@ -306,6 +306,7 @@ class OperationsMixin(object):
         with c.open() as f:
             got = f.read()
         eq(got, u'bar')
+        assert not self.path.child(u'foo').exists()
 
     def test_rename_overwrite(self):
         old = self.path.child(u'quux')
