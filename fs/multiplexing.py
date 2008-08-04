@@ -95,6 +95,15 @@ class path(fs.inmem.path):
                 raise fs.CrossDeviceRenameError()
             if ancestor._bound <> real_ancestor:
                 raise fs.CrossDeviceRenameError()
+            
+            ## TODO: all children are corrupt, since they are bound to
+            ## localfs objects with wrong pathnames.  Deleting the
+            ## link to them won't really solve the problem, since
+            ## there may still be other references to them.  We
+            ## probably need to go through all children objects and
+            ## rebind.  But first I'll need to create a test to prove
+            ## it's broken.
+            self._children = {}
             self._bound.rename(new_path._bound)
             return super(path, self).rename(new_path)
 
