@@ -36,10 +36,11 @@ def test_open_for_writing():
     tmp = maketemp()
     foo = os.path.join(tmp, u'foo')
     # write test content
-    p = fs.copyonwrite(fs.path(foo))
+    p = fs.copyonwrite.path(fs.path(foo))
+    assert_raises(IOError, file, foo)
     with p.open('w') as f:
         f.write('bar')
         
     # since this is the copy_on_write, the write should not be written
     # to the actual file system
-    assert_raises(IOError, file(foo))
+    assert_raises(IOError, file, foo)

@@ -31,16 +31,18 @@ def _has_common_ancestor(self, other):
 
 
 class path(fs.inmem.path):
+    _supercede_attributes = (
+                'bind', 'parent', 'unbind', 'child',
+                'join', 'name', 'rename', 'walk')
+    
     def __init__(self, *args, **kwargs):
         self._bound = None
         super(path, self).__init__(*args, **kwargs)
 
     def __getattribute__(self, item):
         if (object.__getattribute__(self, '_bound') and 
-            item not in (
-                'bind', 'parent', 'unbind', 'child',
-                'join', 'name', 'rename', 'walk') and
-            not item.startswith('_')):
+            not item.startswith('_') and
+            item not in self._supercede_attributes): 
             return getattr(object.__getattribute__(self, '_bound'), item)
         else:
             return object.__getattribute__(self, item)
