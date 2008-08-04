@@ -15,6 +15,9 @@ from fs.test.util import (
     )
 
 def test_bind():
+    """
+    Testing the multiplexing file system (TODO: split up into multiple tests, clean up)
+    """
     mp_root = fs.multiplexing.path()
     mountpoint = mp_root.join('mnt/tmp/')
     real_pathname = maketemp()
