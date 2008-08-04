@@ -405,12 +405,12 @@ class OperationsMixin(object):
 
     def test_walk(self):
         ## File tree copied from /usr/lib/python2.5/test/test_os.py, class WalkTests
-        sub1_path = self.path.child(u"SUB1")
-        sub11_path = sub1_path.child(u"SUB11")
-        sub2_path = self.path.child(u"SUB2")
-        tmp1_path = self.path.child(u"tmp1")
-        tmp2_path = sub1_path.child(u"tmp2")
-        tmp3_path = sub2_path.child(u"tmp3")
+        sub1_path = self.path.join(u"SUB1")
+        sub11_path = sub1_path.join(u"SUB11")
+        sub2_path = self.path.join(u"SUB2")
+        tmp1_path = self.path.join(u"tmp1")
+        tmp2_path = sub1_path.join(u"tmp2")
+        tmp3_path = sub2_path.join(u"tmp3")
 
         ## Create dirs
         sub11_path.mkdir(may_exist=True, create_parents=True)
