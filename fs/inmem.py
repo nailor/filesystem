@@ -124,7 +124,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
             return self
         
         if not self._children.has_key(segment):
-            child = self.__class__(segment, self)
+            child = self.__class__(name=segment, parent=self)
             self._children[segment] = child
             
         ret = self._children[segment]
