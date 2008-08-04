@@ -39,7 +39,7 @@ class path(fs.inmem.path):
         if (object.__getattribute__(self, '_bound') and 
             item not in (
                 'bind', 'parent', 'unbind', 'child',
-                'join', 'name', 'rename') and
+                'join', 'name', 'rename', 'walk') and
             not item.startswith('_')):
             return getattr(object.__getattribute__(self, '_bound'), item)
         else:
