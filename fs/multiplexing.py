@@ -62,6 +62,12 @@ class path(fs.inmem.path):
             childnode._bound = self._bound.child(segment)
         return childnode.child(*segments)
 
+    def __iter__(self):
+        if self._bound:
+            for x in self._bound:
+                self.child(x.name())
+        return super(path, self).__iter__()
+
     def rename(self, new_path):
         """
         At least those scenarioes should be covered:
