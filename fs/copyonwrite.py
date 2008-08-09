@@ -3,7 +3,8 @@ import fs.multiplexing
 
 class path(fs.multiplexing.path):
     _supercede_attributes = (
-        fs.multiplexing.path._supercede_attributes + ('open', 'mkdir'))
+        fs.multiplexing.path._supercede_attributes +
+        ('open', 'mkdir', 'rmdir', 'unlink', 'remove'))
     
     def __init__(self, bind=None, **kwargs):
         super(path, self).__init__(**kwargs)

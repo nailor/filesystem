@@ -107,13 +107,23 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         self._parent = newpath._parent
 
     def unlink(self):
+        if not self.exists():
+            e = OSError()
+            e.errno = errno.ENOENT
+            raise e
         self._file = None
         self._children = {}
         self._stat = ()
         
     remove = unlink
-    rmdir = remove
 
+    def rmdir(self):
+        if not self.isdir():
+            e = OSError()
+            e.errno = errno.ENOTDIR
+            raise e
+        self.unlink()
+        
     def join(self, relpath):
         if relpath.startswith(u'/'):
             raise fs.InsecurePathError(u'path name to join must be relative')
