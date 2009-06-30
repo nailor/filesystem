@@ -403,6 +403,24 @@ class OperationsMixin(object):
         # in p
         eq(self.path.child(u'foo').exists(), False)
 
+    def test_rmdir_bad_notdir(self):
+        p = self.path.child(u'foo')
+        with p.open(u'w') as f:
+            f.write('bar')
+        e = assert_raises(
+            OSError,
+            p.rmdir,
+            )
+        eq(e.errno, errno.ENOTDIR)
+
+    def test_rmdir_bad_notfound(self):
+        p = self.path.child(u'foo')
+        e = assert_raises(
+            OSError,
+            p.rmdir,
+            )
+        eq(e.errno, errno.ENOENT)
+
     def test_walk(self):
         ## File tree copied from /usr/lib/python2.5/test/test_os.py, class WalkTests
         sub1_path = self.path.join(u"SUB1")
