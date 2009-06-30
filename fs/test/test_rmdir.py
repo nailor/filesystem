@@ -14,13 +14,6 @@ import os
 
 import fs
 
-def test_rmdir():
-    tmp = maketemp()
-    foo = os.path.join(tmp, 'foo')
-    os.mkdir(foo)
-    fs.path(tmp).child('foo').rmdir()
-    assert not os.path.exists(foo)
-
 def test_rmdir_bad_notdir():
     tmp = maketemp()
     p = fs.path(tmp).child('foo')
