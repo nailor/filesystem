@@ -368,6 +368,14 @@ class OperationsMixin(object):
         a.unlink()
         eq(list(self.path), [])
 
+    def test_unlink_notfound(self):
+        p = self.path.child(u'foo')
+        e = assert_raises(
+            OSError,
+            p.unlink,
+            )
+        eq(e.errno, errno.ENOENT)
+
     def test_remove_simple(self):
         a = self.path.child(u'foo')
         with a.open(u'w') as f:
@@ -375,6 +383,14 @@ class OperationsMixin(object):
         eq(list(self.path), [a])
         a.remove()
         eq(list(self.path), [])
+
+    def test_remove_notfound(self):
+        p = self.path.child(u'foo')
+        e = assert_raises(
+            OSError,
+            p.remove,
+            )
+        eq(e.errno, errno.ENOENT)
 
     def test_mkdir(self):
         eq(list(self.path), [])
