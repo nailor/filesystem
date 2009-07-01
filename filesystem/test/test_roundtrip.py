@@ -11,12 +11,12 @@ from nose.tools import (
     eq_ as eq,
     )
 
-from fs.test.util import (
+from filesystem.test.util import (
     ne,
     assert_raises
     )
 
-import fs
+import filesystem
 
 import errno
 import stat
@@ -62,7 +62,7 @@ class OperationsMixin(object):
         """
         try:
             self.path.join('/tmp')
-        except fs.InsecurePathError:
+        except filesystem.InsecurePathError:
             pass
     
     def test_dir(self):
@@ -140,25 +140,25 @@ class OperationsMixin(object):
         assert got is self.path
 
     def test_child_bad_slash(self):
-        e = assert_raises(fs.InsecurePathError, self.path.child, u'ev/il')
+        e = assert_raises(filesystem.InsecurePathError, self.path.child, u'ev/il')
         eq(
             str(e),
             'child name contains directory separator',
             )
         ## Exception should be raised even if it's not evil (?)
-        e = assert_raises(fs.InsecurePathError, self.path.child, u'notsoevil/')
+        e = assert_raises(filesystem.InsecurePathError, self.path.child, u'notsoevil/')
 
     def test_child_bad_dotdot(self):
-        e = assert_raises(fs.InsecurePathError, self.path.child, u'..')
+        e = assert_raises(filesystem.InsecurePathError, self.path.child, u'..')
         eq(
             str(e),
             'child trying to climb out of directory',
             )
 
         ## of course, those should also raise errors
-        assert_raises(fs.InsecurePathError, self.path.child, u'../')
-        assert_raises(fs.InsecurePathError, self.path.child, u'..//')
-        assert_raises(fs.InsecurePathError, self.path.child, u'..//..')
+        assert_raises(filesystem.InsecurePathError, self.path.child, u'../')
+        assert_raises(filesystem.InsecurePathError, self.path.child, u'..//')
+        assert_raises(filesystem.InsecurePathError, self.path.child, u'..//..')
 
     def test_flush(self):
         """
@@ -531,7 +531,7 @@ class OperationsMixin(object):
             for (root, dirs, files) in self.path.walk():
                 eq(root, self.path) ## we shouldn't recurse into parent
                 dirs[0] = self.path.parent()
-        except fs.InsecurePathError:
+        except filesystem.InsecurePathError:
             pass
         
 

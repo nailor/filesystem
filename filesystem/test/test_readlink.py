@@ -5,8 +5,8 @@ import errno
 
 from nose.tools import eq_ as eq
 
-from fs.test.util import assert_raises, maketemp
-import fs
+from filesystem.test.util import assert_raises, maketemp
+import filesystem
 
 
 def set_up(absolute):
@@ -26,19 +26,19 @@ def set_up(absolute):
 
 def test_absolute_target():
     source_name, target_name = set_up(absolute=True)
-    p = fs.path(source_name)
+    p = filesystem.path(source_name)
     eq(p.readlink(), target_name)
 
 def test_relative_target():
     source_name, target_name = set_up(absolute=False)
-    p = fs.path(source_name)
+    p = filesystem.path(source_name)
     eq(p.readlink(), target_name)
 
 def test_readlink_on_regular_file():
     source_name, target_name = set_up(absolute=False)
-    p = fs.path(target_name)
+    p = filesystem.path(target_name)
     assert_raises(OSError, p.readlink)
 
 def test_readlink_on_nonexistent_file():
-    p = fs.path(u"non-existent-file")
+    p = filesystem.path(u"non-existent-file")
     assert_raises(OSError, p.readlink)

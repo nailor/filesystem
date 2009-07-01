@@ -1,9 +1,9 @@
-import fs
-import fs.multiplexing
+import filesystem
+import filesystem.multiplexing
 
-class path(fs.multiplexing.path):
+class path(filesystem.multiplexing.path):
     _supercede_attributes = (
-        fs.multiplexing.path._supercede_attributes +
+        filesystem.multiplexing.path._supercede_attributes +
         ('open', 'mkdir', 'rmdir', 'unlink', 'remove'))
     
     def __init__(self, bind=None, **kwargs):

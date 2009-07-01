@@ -170,7 +170,7 @@ class PathnameMixin(object):
 
         For example,
 
-            p = fs.path(u"/some/path").join(u"some_more")
+            p = filesystem.path(u"/some/path").join(u"some_more")
 
         The appended path has to be a relative path. Otherwise, an
         ``InsecurePathError`` is raised.
@@ -192,7 +192,7 @@ class PathnameMixin(object):
 
         For example:
 
-            >>> path = fs.path(u"/usr/share")
+            >>> path = filesystem.path(u"/usr/share")
             >>> child_path = path.child(u"doc", u"python")
             >>> print child_path
             /usr/share/doc/python

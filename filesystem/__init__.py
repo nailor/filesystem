@@ -1,10 +1,10 @@
-from fs._localfs import (
+from filesystem._localfs import (
     path,
     root,
     )
 
 ## TODO: RFC: is this namespace organization sane?
-from fs._base import (
+from filesystem._base import (
     PathnameMixin,
     SimpleComparitionMixin,
     WalkMixin,

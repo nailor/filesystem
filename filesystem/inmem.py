@@ -4,7 +4,7 @@ should not perform any i/o-operations, but it should be possible to
 open file-like objects, write to them, and later re-open them with
 same pathname and read the contents.
 """
-import fs
+import filesystem
 import stat
 import posix
 import StringIO
@@ -49,7 +49,7 @@ class _VirtualFile(StringIO.StringIO):
     def __enter__(self):
         return self
 
-class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
+class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.SimpleComparitionMixin):
     """
     An in-memory path.
 
@@ -64,7 +64,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
     def __init__(self, name=u'', parent=None):
         if u'/' in name:
             ## TODO: untested code line
-            raise fs.InsecurePathError(
+            raise filesystem.InsecurePathError(
                 u'use child() or join() to traverse the inmem fs')
         
         if parent is None:
@@ -126,7 +126,7 @@ class path(fs.WalkMixin, fs.StatWrappersMixin, fs.SimpleComparitionMixin):
         
     def join(self, relpath):
         if relpath.startswith(u'/'):
-            raise fs.InsecurePathError(u'path name to join must be relative')
+            raise filesystem.InsecurePathError(u'path name to join must be relative')
         return self.child(*relpath.split(u'/'))
 
     def child(self, segment=None, *segments):

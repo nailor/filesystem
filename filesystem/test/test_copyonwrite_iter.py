@@ -4,10 +4,10 @@ import os
 
 from nose.tools import eq_ as eq
 
-from fs.test.util import assert_raises, maketemp
+from filesystem.test.util import assert_raises, maketemp
     
-import fs
-import fs.copyonwrite
+import filesystem
+import filesystem.copyonwrite
 
 
 def test_iter():
@@ -17,7 +17,7 @@ def test_iter():
     for i in temp_files:
         f = open(os.path.join(temp_dir, i), 'w')
         f.close()
-    p = fs.copyonwrite.path(fs.path(temp_dir))
+    p = filesystem.copyonwrite.path(filesystem.path(temp_dir))
     ## add one more file
     with p.child('file3').open('w') as f:
         f.write('ubba')
@@ -31,6 +31,6 @@ def test_not_directory():
     f = open(os.path.join(temp_dir, "some_file"), "w")
     f.close()
     # check reaction on getting the iterator
-    p = fs.copyonwrite.path(fs.path(temp_dir).join("some_file"))
+    p = filesystem.copyonwrite.path(filesystem.path(temp_dir).join("some_file"))
     # note: the exception is only raised after calling ``next``
     assert_raises(OSError, list, p)

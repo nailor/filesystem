@@ -4,7 +4,7 @@ from nose.tools import (
     eq_ as eq,
     )
 
-from fs.test.util import (
+from filesystem.test.util import (
     assert_raises,
     maketemp,
     )
@@ -12,11 +12,11 @@ from fs.test.util import (
 import errno
 import os
 
-import fs
-import fs.copyonwrite
+import filesystem
+import filesystem.copyonwrite
 
 def test_open_nonexisting():
-    p = fs.copyonwrite.path(fs.path(u'/does-not-exist'))
+    p = filesystem.copyonwrite.path(filesystem.path(u'/does-not-exist'))
     e = assert_raises(IOError, p.open)
     eq(e.errno, errno.ENOENT)
 
@@ -27,7 +27,7 @@ def test_open_for_reading():
     with file(foo, 'w') as f:
         f.write('bar')
     # ... and read it back with our fs code
-    p = fs.copyonwrite.path(fs.path(foo))
+    p = filesystem.copyonwrite.path(filesystem.path(foo))
     with p.open() as f:
         got = f.read()
     eq(got, 'bar')
@@ -36,7 +36,7 @@ def test_open_for_writing():
     tmp = maketemp()
     foo = os.path.join(tmp, u'foo')
     # write test content
-    p = fs.copyonwrite.path(fs.path(foo))
+    p = filesystem.copyonwrite.path(filesystem.path(foo))
     assert_raises(IOError, file, foo)
     with p.open('w') as f:
         f.write('bar')

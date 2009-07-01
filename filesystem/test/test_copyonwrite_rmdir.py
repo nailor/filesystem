@@ -4,7 +4,7 @@ from nose.tools import (
     eq_ as eq,
     )
 
-from fs.test.util import (
+from filesystem.test.util import (
     maketemp,
     assert_raises,
     )
@@ -12,19 +12,19 @@ from fs.test.util import (
 import errno
 import os
 
-import fs
-import fs.copyonwrite
+import filesystem
+import filesystem.copyonwrite
 
 def test_rmdir():
     tmp = maketemp()
     foo = os.path.join(tmp, 'foo')
     os.mkdir(foo)
-    fs.copyonwrite.path(fs.path(tmp)).child('foo').rmdir()
+    filesystem.copyonwrite.path(filesystem.path(tmp)).child('foo').rmdir()
     assert os.path.exists(foo)
 
 def test_rmdir_bad_notdir():
     tmp = maketemp()
-    p = fs.copyonwrite.path(fs.path(tmp)).child('foo')
+    p = filesystem.copyonwrite.path(filesystem.path(tmp)).child('foo')
     with p.open('w') as f:
         f.write('bar')
     e = assert_raises(
@@ -35,7 +35,7 @@ def test_rmdir_bad_notdir():
 
 def test_rmdir_bad_notfound():
     tmp = maketemp()
-    p = fs.copyonwrite.path(fs.path(tmp)).child('foo')
+    p = filesystem.copyonwrite.path(filesystem.path(tmp)).child('foo')
     e = assert_raises(
         OSError,
         p.rmdir,

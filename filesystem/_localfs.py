@@ -1,7 +1,7 @@
 import errno
 import os
 
-from fs._base import (
+from filesystem._base import (
     PathnameMixin,
     WalkMixin,
     StatWrappersMixin,

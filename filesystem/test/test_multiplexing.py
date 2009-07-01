@@ -1,16 +1,16 @@
-import fs.multiplexing 
-import fs 
+import filesystem.multiplexing 
+import filesystem
 
 from nose.tools import (
     eq_ as eq,
     )
 
-from fs.test.util import (
+from filesystem.test.util import (
     ne,
     maketemp,
     )
 
-from fs.test.util import (
+from filesystem.test.util import (
     maketemp,
     )
 
@@ -18,11 +18,11 @@ def test_bind():
     """
     Testing the multiplexing file system (TODO: split up into multiple tests, clean up)
     """
-    mp_root = fs.multiplexing.path()
+    mp_root = filesystem.multiplexing.path()
     mountpoint = mp_root.join('mnt/tmp/')
     real_pathname = maketemp()
-    mountpoint.bind(fs.path(real_pathname))
-    real_path = fs.path(real_pathname)
+    mountpoint.bind(filesystem.path(real_pathname))
+    real_path = filesystem.path(real_pathname)
     
     ## TODO: RFC: I'm not sure whether it should pass or not since the
     ## parent differs.

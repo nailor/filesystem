@@ -3,14 +3,14 @@ Simple filesystem based on the in-memory file system.
 
 Through the method "bind", one can introduce a new subfilesystem,
 i.e.:
-    fs.multiplexing.path('/mnt/ftp.python.org').bind(
-        fs.ftpfs.path(host='ftp.python.org'))
+    filesystem.multiplexing.path('/mnt/ftp.python.org').bind(
+        filesystem.ftpfs.path(host='ftp.python.org'))
 
 TODO: more test code and more documentation
 """
 
-import fs
-import fs.inmem
+import filesystem
+import filesystem.inmem
 
 def _has_common_ancestor(self, other):
     ## TODO RFC: maybe make this a method of all the filesystem
@@ -30,7 +30,7 @@ def _has_common_ancestor(self, other):
     return self
 
 
-class path(fs.inmem.path):
+class path(filesystem.inmem.path):
     _supercede_attributes = (
                 'bind', 'parent', 'unbind', 'child',
                 'join', 'name', 'rename', 'walk')
@@ -91,18 +91,18 @@ class path(fs.inmem.path):
         if not self._bound and (
             not hasattr(new_path, '_bound') or not new_path._bound):
             if not _has_common_ancestor(self, new_path):
-                raise fs.CrossDeviceRenameError()
+                raise filesystem.CrossDeviceRenameError()
             return super(path, self).rename(new_path)
 
         if self._bound and hasattr(new_path, '_bound') and new_path._bound:
             ancestor = _has_common_ancestor(self, new_path)
             if not ancestor:
-                raise fs.CrossDeviceRenameError()
+                raise filesystem.CrossDeviceRenameError()
             real_ancestor = _has_common_ancestor(self._bound, new_path._bound)
             if not real_ancestor:
-                raise fs.CrossDeviceRenameError()
+                raise filesystem.CrossDeviceRenameError()
             if ancestor._bound <> real_ancestor:
-                raise fs.CrossDeviceRenameError()
+                raise filesystem.CrossDeviceRenameError()
             
             ## TODO: all children are corrupt, since they are bound to
             ## localfs objects with wrong pathnames.  Deleting the
@@ -115,7 +115,7 @@ class path(fs.inmem.path):
             self._bound.rename(new_path._bound)
             return super(path, self).rename(new_path)
 
-        raise fs.CrossDeviceRenameError()
+        raise filesystem.CrossDeviceRenameError()
 
     
 root = path()
