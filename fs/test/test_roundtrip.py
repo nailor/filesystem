@@ -16,7 +16,7 @@ from fs.test.util import (
     assert_raises
     )
 
-from fs import InsecurePathError
+import fs
 
 import errno
 import stat
@@ -62,7 +62,7 @@ class OperationsMixin(object):
         """
         try:
             self.path.join('/tmp')
-        except InsecurePathError:
+        except fs.InsecurePathError:
             pass
     
     def test_dir(self):
@@ -142,6 +142,27 @@ class OperationsMixin(object):
     def test_child_no_segments(self):
         got = self.path.child()
         assert got is self.path
+
+    def test_child_bad_slash(self):
+        e = assert_raises(fs.InsecurePathError, self.path.child, u'ev/il')
+        eq(
+            str(e),
+            'child name contains directory separator',
+            )
+        ## Exception should be raised even if it's not evil (?)
+        e = assert_raises(fs.InsecurePathError, self.path.child, u'notsoevil/')
+
+    def test_child_bad_dotdot(self):
+        e = assert_raises(fs.InsecurePathError, self.path.child, u'..')
+        eq(
+            str(e),
+            'child trying to climb out of directory',
+            )
+
+        ## of course, those should also raise errors
+        assert_raises(fs.InsecurePathError, self.path.child, u'../')
+        assert_raises(fs.InsecurePathError, self.path.child, u'..//')
+        assert_raises(fs.InsecurePathError, self.path.child, u'..//..')
 
     def test_flush(self):
         """
@@ -498,7 +519,7 @@ class OperationsMixin(object):
             for (root, dirs, files) in self.path.walk():
                 eq(root, self.path) ## we shouldn't recurse into parent
                 dirs[0] = self.path.parent()
-        except InsecurePathError:
+        except fs.InsecurePathError:
             pass
         
 
