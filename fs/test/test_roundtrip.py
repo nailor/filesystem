@@ -119,12 +119,8 @@ class OperationsMixin(object):
             f = self.path.child(i).open(u'w')
             f.close()
         # see whether we actually get the file names with the iterator
-        p = self.path
-        files = (sorted(str(x) for x in p))
-        eq(len(files), 3)
-        for got,expected in zip(files, temp_files):
-            assert expected in got
-            
+        files = sorted(x.name() for x in self.path)
+        eq(files, temp_files)
 
     def test_not_directory(self):
         # prepare a file on which to call the iterator
