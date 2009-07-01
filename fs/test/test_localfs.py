@@ -84,3 +84,6 @@ def test_parent_of_relative():
 def test_parent_of_relative_subdir():
     p = fs.path('foo/bar')
     eq(p.parent(), fs.path('foo'))
+
+def test_name_simple():
+    eq(fs.path("foo/bar").name(), "bar")
