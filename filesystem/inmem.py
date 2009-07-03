@@ -23,9 +23,16 @@ class _VirtualByteFile(io._BytesIO):
 
     ## TODO: implement so that it works with cBytesIO too (ie.
     ## io.BytesIO)
-    def __init__(self, path, mode=''):
+    def __init__(self, path, mode='', *args, **kwargs):
         super().__init__()
         self._buffer = path._file._buffer
+
+        if 'encoding' in kwargs:
+            # TODO: Better argument passing is needed, since encoding
+            # can be a positional argument
+            self._encoding = kwargs['encoding']
+        else:
+            self._encoding = sys.getdefaultencoding()
 
         if mode.startswith('w'):
             self.truncate()
@@ -45,10 +52,10 @@ class _VirtualTextFile(_VirtualByteFile):
         """Encode given text to a bytestring using given encoding (or
         platform specific default, if no encoding is given.)
         """
-        return bytes(text, sys.getdefaultencoding())
+        return bytes(text, self._encoding)
 
     def _btot(self, bytes):
-        return bytes.decode(sys.getdefaultencoding())
+        return bytes.decode(self._encoding)
 
     def write(self, text):
         text = self._ttob(text)
@@ -162,8 +169,8 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
         if not self.exists():
             self._stat = [stat.S_IFREG + 0o777, 0,0,0,0,0,0,0,0,0]
         if 'b' in mode:
-            return _VirtualByteFile(self, mode)
-        return _VirtualTextFile(self, mode)
+            return _VirtualByteFile(self, mode, *args, **kwargs)
+        return _VirtualTextFile(self, mode, *args, **kwargs)
     
     def mkdir(self, may_exist=False, create_parents=False):
         ## TODO: those lines are copied from _localfs.py, consider refactoring
