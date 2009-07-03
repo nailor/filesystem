@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 import os
 import stat
 import errno
@@ -12,11 +12,11 @@ import filesystem
 def set_up(absolute):
     temp_dir = maketemp()
     os.chdir(temp_dir)
-    source_name = os.path.join(temp_dir, u"link_source")
+    source_name = os.path.join(temp_dir, "link_source")
     if absolute:
-        target_name = os.path.join(temp_dir, u"link_target")
+        target_name = os.path.join(temp_dir, "link_target")
     else:
-        target_name = u"link_target"
+        target_name = "link_target"
     # create the file the link will point to
     f = open(target_name, "w")
     f.close()
@@ -40,5 +40,5 @@ def test_readlink_on_regular_file():
     assert_raises(OSError, p.readlink)
 
 def test_readlink_on_nonexistent_file():
-    p = filesystem.path(u"non-existent-file")
+    p = filesystem.path("non-existent-file")
     assert_raises(OSError, p.readlink)

@@ -101,7 +101,7 @@ class path(filesystem.inmem.path):
             real_ancestor = _has_common_ancestor(self._bound, new_path._bound)
             if not real_ancestor:
                 raise filesystem.CrossDeviceRenameError()
-            if ancestor._bound <> real_ancestor:
+            if ancestor._bound != real_ancestor:
                 raise filesystem.CrossDeviceRenameError()
             
             ## TODO: all children are corrupt, since they are bound to

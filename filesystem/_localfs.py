@@ -51,7 +51,7 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
             raise CrossDeviceRenameError()
         try:
             os.rename(self._pathname, new_path._pathname)
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.EXDEV:
                 raise CrossDeviceRenameError()
             else:
@@ -135,7 +135,7 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
             
         try:
             os.mkdir(self._pathname)
-        except OSError, e:
+        except OSError as e:
             if may_exist and e.errno == errno.EEXIST:
                 pass
             else:
@@ -144,6 +144,6 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
     def rmdir(self):
         os.rmdir(self._pathname)
 
-root = path(u'/')
+root = path('/')
 ## RFC: I want every path for every file system to have a root object for identification purposes.
 path.root = root

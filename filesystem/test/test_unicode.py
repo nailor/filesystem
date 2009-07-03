@@ -13,14 +13,14 @@ import filesystem
 def test_path_str_argument():
     p = filesystem.path("/")
     assert isinstance(str(p), str)
-    assert isinstance(unicode(p), unicode)
+    assert isinstance(str(p), str)
 
 def test_path_unicode_argument():
-    p = filesystem.path(u"/")
+    p = filesystem.path("/")
     assert isinstance(str(p), str)
-    assert isinstance(unicode(p), unicode)
+    assert isinstance(str(p), str)
 
 def test_repr():
-    p = filesystem.path(u"/test\xe4")
+    p = filesystem.path("/test\xe4")
     assert isinstance(repr(p), str)
 

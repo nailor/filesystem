@@ -9,8 +9,8 @@ from filesystem.test.util import (
 import filesystem
 
 def test_new_object():
-    p = filesystem.path(u"/")
-    c = p.child(u"segment1", u"segment2")
+    p = filesystem.path("/")
+    c = p.child("segment1", "segment2")
     assert p is not c
-    eq(unicode(p), u"/")
-    eq(unicode(c), u"/segment1/segment2")
+    eq(str(p), "/")
+    eq(str(c), "/segment1/segment2")

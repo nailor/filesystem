@@ -14,32 +14,32 @@ import filesystem
 
 ## TODO: move those two tests to a misc test
 def test_str_simple():
-    p = filesystem.path(u'/foo')
+    p = filesystem.path('/foo')
     got = str(p)
-    eq(got, u'/foo')
+    eq(got, '/foo')
 
 def test_str_root():
     root = filesystem.root
     slash = str(root)
-    eq(slash, u'/')
+    eq(slash, '/')
 
 def test_str_child_of_root():
-    path = filesystem.root.child(u'tmp')
-    eq(str(path), u'/tmp')
+    path = filesystem.root.child('tmp')
+    eq(str(path), '/tmp')
 
 def test_join_without_slash():
     """
     simple test of joining / and tmp
     """
-    path = filesystem.root.join(u'tmp')
-    eq(str(path), u'/tmp')
+    path = filesystem.root.join('tmp')
+    eq(str(path), '/tmp')
 
 def test_join_with_leading_slash():
     """
     join should raise an exception if one tries to escape from the
     path by giving an absolute path
     """
-    e = assert_raises(filesystem.InsecurePathError, filesystem.path(u'/tmp').join, u'/usr')
+    e = assert_raises(filesystem.InsecurePathError, filesystem.path('/tmp').join, '/usr')
     eq(str(e), 'path name to join must be relative')
 
 def test_join_with_trailing_slash():
@@ -48,14 +48,14 @@ def test_join_with_trailing_slash():
     the parameters are with or without trailing slashes.  join
     should not discard the last trailing slash.
     """
-    path = filesystem.root.join(u'usr/').join(u'lib').join(u'python/')
+    path = filesystem.root.join('usr/').join('lib').join('python/')
     eq(str(path), "/usr/lib/python/")
 
 def test_join_side_effects():
     """join should return a new object, and not modify the existing"""
     path = filesystem.root
-    ret = path.join(u'tmp')
-    eq(str(path), u'/')
+    ret = path.join('tmp')
+    eq(str(path), '/')
     assert path is not ret
 
 def test_join_wrong_parameters():
@@ -67,7 +67,7 @@ def test_join_wrong_parameters():
 def test_rename_bad_string():
     tmp = maketemp()
     parent = filesystem.path(tmp)
-    old = parent.join(u'foo')
+    old = parent.join('foo')
     assert_raises(
         filesystem.CrossDeviceRenameError,
         old.rename, 'foo')
@@ -92,13 +92,13 @@ def test_name_simple():
     eq(filesystem.path("foo/bar").name(), "bar")
 
 def test_open_nonexisting():
-    p = filesystem.path(u'/does-not-exist')
+    p = filesystem.path('/does-not-exist')
     e = assert_raises(IOError, p.open)
     eq(e.errno, errno.ENOENT)
 
 def test_open_for_reading():
     tmp = maketemp()
-    foo = os.path.join(tmp, u'foo')
+    foo = os.path.join(tmp, 'foo')
     # write file with Python's standard API ...
     with open(foo, 'w') as f:
         f.write('bar')
@@ -110,7 +110,7 @@ def test_open_for_reading():
 
 def test_open_for_writing():
     tmp = maketemp()
-    foo = os.path.join(tmp, u'foo')
+    foo = os.path.join(tmp, 'foo')
     # write test content
     p = filesystem.path(foo)
     with p.open('w') as f:

@@ -27,11 +27,11 @@ class CrossDeviceRenameError(Exception):
 ## utility function for checking for safe file names.
 ## TODO: should it be encapsulated within a class?
 def raise_on_insecure_file_name(name):
-    if u'/' in name:
+    if '/' in name:
         raise InsecurePathError(
             'child name contains directory separator')
     # this may be too naive
-    if name == u'..':
+    if name == '..':
         raise InsecurePathError(
             'child trying to climb out of directory')
 
@@ -70,7 +70,7 @@ class StatWrappersMixin(object):
         """
         try:
             self.stat()
-        except OSError, e:
+        except OSError as e:
             # ENOENT means the path wasn't found
             if e.errno == errno.ENOENT:
                 return False
@@ -174,7 +174,7 @@ class PathnameMixin(object):
         return str(self._pathname)
 
     def __unicode__(self):
-        return unicode(self._pathname)
+        return str(self._pathname)
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self._pathname)
@@ -191,7 +191,7 @@ class PathnameMixin(object):
         The appended path has to be a relative path. Otherwise, an
         ``InsecurePathError`` is raised.
         """
-        if relpath.startswith(u'/'):
+        if relpath.startswith('/'):
             raise InsecurePathError('path name to join must be relative')
         return self.__class__(os.path.join(self._pathname, relpath))
 
@@ -219,7 +219,13 @@ class PathnameMixin(object):
         """
         p = self
         for segment in segments:
-            raise_on_insecure_file_name(segment)
+            if '/' in segment:
+                raise InsecurePathError(
+                      'child name contains directory separator')
+            # this may be too naive
+            if segment == '..':
+                raise InsecurePathError(
+                      'child trying to climb out of directory')
             p = p.join(segment)
         return p
 
@@ -330,13 +336,10 @@ class SimpleComparitionMixin(object):
     def __ge__(self, other):
         return not self < other
 
-    def __unicode__(self):
-        if self.parent() == self:
-            return u'/'
-        return str(self.parent())+ u'/' + self.name()
-
     def __str__(self):
-        return unicode(self).encode('utf8')
+        if self.parent() == self:
+            return '/'
+        return str(self.parent())+ '/' + self.name()
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, str(self))

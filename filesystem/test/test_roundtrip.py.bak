@@ -31,12 +31,12 @@ class OperationsMixin(object):
     # the actual tests; subclass this and provide a setUp method that
     # gives it a empty self.path for every method
 
-    def _create_file(self, name='foo', content='bar'):
+    def _create_file(self, name=u'foo', content='bar'):
         """
         utility function - creates a file and writes some data to it.
         """
         file = self.path.child(name)
-        with file.open('w') as f:
+        with file.open(u'w') as f:
             f.write(content)
 
         return file
@@ -50,7 +50,7 @@ class OperationsMixin(object):
         # set foo to a path object pointing to a new file with content "bar"
         foo = self._create_file('foo', 'bar')
         # test that the file can be accessed
-        p = self.path.child('foo')
+        p = self.path.child(u'foo')
 
         assert(p.exists() is True)
         assert(p.isfile() is True)
@@ -116,7 +116,7 @@ class OperationsMixin(object):
         """
         ## Make sure write-read is repeatable
         for dummy in (0,1):
-            p = self._create_file('foo', 'barfoo')
+            p = self._create_file(u'foo', 'barfoo')
             with p.open() as f:
                 got = f.read(3)
                 eq(got, 'bar')
@@ -588,7 +588,7 @@ class LinkOpMixin(OperationsMixin):
         p = self.path
 
         ## create a mock file
-        src = self._create_file('testfile', 'bar')
+        src = self._create_file(u'testfile', 'bar')
 
         ## create a symlink to it
         src.symlink(p.child('testlink'))
@@ -664,7 +664,7 @@ class PosixOpMixin(LinkOpMixin):
 
     def test_stat(self):
         ## create a file to play with
-        file = self._create_file('stat_test_file')
+        file = self._create_file(u'stat_test_file')
         stats = file.stat()
 
         ## testing st_mode
@@ -694,7 +694,7 @@ class PosixOpMixin(LinkOpMixin):
 
     def test_chown_lchown_1(self):
         ## create a file and a link
-        file = self._create_file('chown_test_file1')
+        file = self._create_file(u'chown_test_file1')
         link = self.path.child('chown_test_link1')
         file.symlink(link)
 
@@ -723,7 +723,7 @@ class PosixOpMixin(LinkOpMixin):
             raise nose.SkipTest("this test relies on user nobody to exist")
 
         ## setup - create a file and a link
-        file = self._create_file('chown_test_file1')
+        file = self._create_file(u'chown_test_file1')
         link = self.path.child('chown_test_link1')
         file.symlink(link)
 
@@ -752,7 +752,7 @@ class PosixOpMixin(LinkOpMixin):
         if len(gids)<2:
             raise SkipTest("need to be member of at least two groups to run this test")
         ## setup, part 2 - create a file and a link
-        file = self._create_file('chown_test_file1')
+        file = self._create_file(u'chown_test_file1')
         link = self.path.child('chown_test_link1')
         file.symlink(link)
 
@@ -781,7 +781,7 @@ class PosixOpMixin(LinkOpMixin):
 
     def test_chown_lchown_raises_error(self):
         ## create a file and a link
-        file = self._create_file('chown_test_file1')
+        file = self._create_file(u'chown_test_file1')
         link = self.path.child('chown_test_link1')
         file.symlink(link)
 

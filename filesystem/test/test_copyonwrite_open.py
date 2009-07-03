@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 
 from nose.tools import (
     eq_ as eq,
@@ -16,13 +16,13 @@ import filesystem
 import filesystem.copyonwrite
 
 def test_open_nonexisting():
-    p = filesystem.copyonwrite.path(filesystem.path(u'/does-not-exist'))
+    p = filesystem.copyonwrite.path(filesystem.path('/does-not-exist'))
     e = assert_raises(IOError, p.open)
     eq(e.errno, errno.ENOENT)
 
 def test_open_for_reading():
     tmp = maketemp()
-    foo = os.path.join(tmp, u'foo')
+    foo = os.path.join(tmp, 'foo')
     # write file with Python's standard API ...
     with open(foo, 'w') as f:
         f.write('bar')
@@ -34,7 +34,7 @@ def test_open_for_reading():
 
 def test_open_for_writing():
     tmp = maketemp()
-    foo = os.path.join(tmp, u'foo')
+    foo = os.path.join(tmp, 'foo')
     # write test content
     p = filesystem.copyonwrite.path(filesystem.path(foo))
     assert_raises(IOError, open, foo)

@@ -7,10 +7,10 @@ same pathname and read the contents.
 import filesystem
 import stat
 import posix
-import StringIO
+import io
 import errno
 
-class _VirtualFile(StringIO.StringIO):
+class _VirtualFile(io.StringIO):
     """
     A StringIO class that is specialized to be used for the inmem fs.
     """
@@ -19,16 +19,16 @@ class _VirtualFile(StringIO.StringIO):
     ## self._path.  Except for self._path and self._file, we keep
     ## self.pos in this wrapper, since that's the only thing that is
     ## different between the different open files.
-    def __init__(self, path, mode=u''):
+    def __init__(self, path, mode=''):
         ## we'll have to use __dict__ here to get around __setattr__
         self.__dict__['_path'] = path
         self.__dict__['_file'] = path._file
         self.__dict__['pos'] = 0
         
-        if mode.startswith(u'w'):
+        if mode.startswith('w'):
             self.truncate()
 
-        if mode.startswith(u'a'):
+        if mode.startswith('a'):
             self.seek(self.len)
 
     def __getattr__(self, item):
@@ -61,11 +61,11 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
     creating a new distinct file system - the file system has to be
     traversed through .child() or .join()
     """
-    def __init__(self, name=u'', parent=None):
-        if u'/' in name:
+    def __init__(self, name='', parent=None):
+        if '/' in name:
             ## TODO: untested code line
             raise filesystem.InsecurePathError(
-                u'use child() or join() to traverse the inmem fs')
+                'use child() or join() to traverse the inmem fs')
         
         if parent is None:
             self._parent = self
@@ -74,7 +74,7 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
         self._name = name
         self._children = {}
         self._stat = ()
-        self._file = StringIO.StringIO()
+        self._file = io.StringIO()
 
     #def __eq__(self, other):
         ## as said above, two equal paths should always be same object.
@@ -125,15 +125,15 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
         self.unlink()
         
     def join(self, relpath):
-        if relpath.startswith(u'/'):
-            raise filesystem.InsecurePathError(u'path name to join must be relative')
-        return self.child(*relpath.split(u'/'))
+        if relpath.startswith('/'):
+            raise filesystem.InsecurePathError('path name to join must be relative')
+        return self.child(*relpath.split('/'))
 
     def child(self, segment=None, *segments):
         if not segment:
             return self
         
-        if not self._children.has_key(segment):
+        if segment not in self._children:
             filesystem.raise_on_insecure_file_name(segment)
             child = self.__class__(name=segment, parent=self)
             self._children[segment] = child
@@ -145,9 +145,9 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
         else:
             return ret
 
-    def open(self, mode=u'r', *args, **kwargs):
+    def open(self, mode='r', *args, **kwargs):
         if not self.exists():
-            self._stat = [stat.S_IFREG + 0777, 0,0,0,0,0,0,0,0,0]
+            self._stat = [stat.S_IFREG + 0o777, 0,0,0,0,0,0,0,0,0]
         return _VirtualFile(self, mode)
     
     def mkdir(self, may_exist=False, create_parents=False):
@@ -167,7 +167,7 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
                 err.errno = errno.EEXIST
                 raise err
         else:
-            self._stat = [stat.S_IFDIR+0777, 0,0,0,0,0,0,0,0,0]
+            self._stat = [stat.S_IFDIR+0o777, 0,0,0,0,0,0,0,0,0]
     
     def __iter__(self):
         if not self.isdir():
@@ -177,7 +177,7 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
             else:
                 e.errno = errno.ENOENT
             raise e
-        return [x for x in self._children.values() if x.exists()].__iter__()
+        return [x for x in list(self._children.values()) if x.exists()].__iter__()
 
 root = path()
 root.mkdir(may_exist=True, create_parents=True)
