@@ -44,7 +44,7 @@ distribution.
 With a common API, one could pass around different file system objects
 - this allows non-native file systems and meta file systems to be
 used, i.e. pointers into tarballs, access to remote file systems
-i.e. through ssh/sftp, write-on-copy file systems, in-memory file
+i.e. through ssh/sftp, copy-on-write file systems, in-memory file
 systems, test-specific file systems designed to fail, file systems
 owith non-native permission systems, chroot-jailed file systems, etc.
 
