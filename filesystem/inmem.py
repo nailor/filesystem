@@ -9,45 +9,63 @@ import stat
 import posix
 import io
 import errno
+import sys
 
-class _VirtualFile(io.StringIO):
+class _VirtualByteFile(io._BytesIO):
     """
-    A StringIO class that is specialized to be used for the inmem fs.
+    A BytesIO class that is specialized to be used for the inmem fs.
     """
     ## This class is a wrapper class, the real content is stored in
     ## self._path._file, which we for the convenience copy to
     ## self._path.  Except for self._path and self._file, we keep
     ## self.pos in this wrapper, since that's the only thing that is
     ## different between the different open files.
+
+    ## TODO: implement so that it works with cBytesIO too (ie.
+    ## io.BytesIO)
     def __init__(self, path, mode=''):
-        ## we'll have to use __dict__ here to get around __setattr__
-        self.__dict__['_path'] = path
-        self.__dict__['_file'] = path._file
-        self.__dict__['pos'] = 0
-        
+        super().__init__()
+        self._buffer = path._file._buffer
+
         if mode.startswith('w'):
             self.truncate()
 
         if mode.startswith('a'):
-            self.seek(self.len)
+            self.seek(path.size())
 
-    def __getattr__(self, item):
-        return getattr(self._file, item)
+class _VirtualTextFile(_VirtualByteFile):
+    """
+    A text-mode file wrapper class that is specialized to be used for
+    the inmem fs.
+    """
+    def __next__(self):
+        return self._btot(super().next())
 
-    def __setattr__(self, item, newvalue):
-        if item == 'pos':
-            self.__dict__[item] = newvalue
-        else:
-            return setattr(self._file, item, newvalue)
+    def _ttob(self, text):
+        """Encode given text to a bytestring using given encoding (or
+        platform specific default, if no encoding is given.)
+        """
+        return bytes(text, sys.getdefaultencoding())
 
-    def __exit__(self, a, b, c):
-        pass
+    def _btot(self, bytes):
+        return bytes.decode(sys.getdefaultencoding())
 
-    def close(self):
-        pass
-    
-    def __enter__(self):
-        return self
+    def write(self, text):
+        text = self._ttob(text)
+        super().write(text)
+
+    def writelines(self, lines):
+        lines = (self._ttob(text) for text in lines)
+        super().writelines(lines)
+
+    def read(self, size=None):
+        return self._btot(super().read(size))
+
+    def readline(self, size=None):
+        return self._btot(super().readline(size))
+
+    def readlines(self, sizehint=None):
+        return [self._btot(text) for text in super().readlines()]
 
 class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.SimpleComparitionMixin):
     """
@@ -74,11 +92,7 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
         self._name = name
         self._children = {}
         self._stat = ()
-        self._file = io.StringIO()
-
-    #def __eq__(self, other):
-        ## as said above, two equal paths should always be same object.
-        #return self is other
+        self._file = io._BytesIO()
 
     def stat(self):
         if not self._stat:
@@ -86,9 +100,8 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
             e.errno = errno.ENOENT
             raise e
         if self._file:
-            self._stat[6] = self._file.len
+            self._stat[6] = len(self._file.getvalue())
         ## bloat ... turning a list to a sequence to a stat_result object ;-)
-        ## Well, StringIO implementation is not quite optimal anyway ;-)
         return posix.stat_result(list(self._stat))
 
     def parent(self):
@@ -148,7 +161,9 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
     def open(self, mode='r', *args, **kwargs):
         if not self.exists():
             self._stat = [stat.S_IFREG + 0o777, 0,0,0,0,0,0,0,0,0]
-        return _VirtualFile(self, mode)
+        if 'b' in mode:
+            return _VirtualByteFile(self, mode)
+        return _VirtualTextFile(self, mode)
     
     def mkdir(self, may_exist=False, create_parents=False):
         ## TODO: those lines are copied from _localfs.py, consider refactoring

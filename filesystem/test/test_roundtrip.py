@@ -249,7 +249,7 @@ class OperationsMixin(object):
         Test that will write a fixed length byte string to a file,
         close it and check that the file size is correct.
         """
-        bytestring = 'abcd' * 128
+        bytestring = b'abcd' * 128
         eq(len(bytestring), 512)
         p = self.path.child('foo')
         with p.open('wb') as f:
