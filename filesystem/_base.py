@@ -248,10 +248,26 @@ class PathnameMixin(object):
             return NotImplemented
         return False
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         return (self._incomparable(other) or
-                cmp(self._pathname, other._pathname))
-    
+                (self._pathname < other._pathname))
+
+    def __eq__(self, other):
+        return (self._incomparable(other) or
+                (self._pathname == other._pathname))
+
+    def __gt__(self, other):
+        return not (self < other or self == other)
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __ge__(self, other):
+        return not self < other
+
+    def __ne__(self, other):
+        return not self == other
+
 class SimpleComparitionMixin(object):
     """
     This class implements the equity/comparition-methods using
@@ -272,17 +288,37 @@ class SimpleComparitionMixin(object):
                 return NotImplemented
         return False
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         if self._incomparable(other):
             return NotImplemented
 
         ## root object
         if self.parent() is self and other.parent() is other:
-            return cmp(self.name(), other.name())
-        
+            return self.name() < other.name()
+
         ## compare parents ... and if they are equal, compare name
-        return (cmp(self.parent(), other.parent()) or
-                  cmp(self.name(), other.name()))
+        return ((self.parent() < other.parent()) or
+                  (self.name() < other.name()))
+
+    def __eq__(self, other):
+        if self._incomparable(other):
+            return NotImplemented
+
+        ## root object
+        if self.parent() is self and other.parent() is other:
+            return self.name() == other.name()
+
+        return ((self.parent() == other.parent()) and
+                  (self.name() == other.name()))
+
+    def __gt__(self, other):
+        return not self <= other
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __ge__(self, other):
+        return not self < other
 
     def __unicode__(self):
         if self.parent() == self:
