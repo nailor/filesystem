@@ -599,8 +599,9 @@ class PosixOpMixin(LinkOpMixin, OperationsMixin):
     (TODO - not complete)
     """
     def test_methods_exists(self):
-        for method in ('stat', 'lstat', 'readlink', 'symlink', 'islink'):
-            ## TODO: add .... 'chown', 'chmod', 'lchown', 'access', 'major', 'minor', 'makedev', 'mkfifo', 'mknod', 'utime')
+        for method in ('stat', 'lstat', 'readlink', 'symlink', 
+                       'islink', 'chown'):
+            ## TODO: add .... 'chmod', 'lchown', 'access', 'major', 'minor', 'makedev', 'mkfifo', 'mknod', 'utime')
             assert(hasattr(self.path, method))
             assert(hasattr(getattr(self.path, method), '__call__'))
 
@@ -697,6 +698,8 @@ class PosixOpMixin(LinkOpMixin, OperationsMixin):
             ## TODO: check if the nobody user exist
             file.chown('nobody')
             eq(file.stat().st_uid, pwd.getpwnam('nobody').pw_uid)
+
+        ## TODO: forgotten to test changing of group ...
 
 
     ## TODO: write tests for all the other posix-required methods...

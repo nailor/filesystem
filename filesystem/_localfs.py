@@ -91,17 +91,25 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
         ## TODO: shouldn't we return a path object instead?
         return os.readlink(self._pathname)
 
-    def chown(self, new_user, new_group=None):
-        ## RFC: I want the methods here to be "batteries included", 
-        ## but at the other hand this extra logic makes it heavier
-        ## to make more file systems.
+    def _chown(self, new_user, new_group, chown_method):
+        ## RFC: I think we should have this "batteries included" logics,
+        ## or it will be quite hard to use chown - but this should
+        ## probably be moved to a helper class.
         if new_group is None:
             new_group = self.stat().st_gid
+        if new_user is None:
+            new_user = self.stat().st_uid
         if not isinstance(new_user, int):
             new_user = pwd.getpwnam(new_user).pw_uid
         if not isinstance(new_group, int):
             new_group = grp.getgrnam(new_group).gr_gid
-        os.chown(self._pathname, new_user, new_group)
+        chown_method(self._pathname, new_user, new_group)
+
+    def chown(self, new_user=None, new_group=None):
+        return self._chown(new_user, new_group, os.chown)
+
+    def lchown(self, new_user=None, new_group=None):
+        return self._chown(new_user, new_group, os.lchown)
 
     def unlink(self):
         """
