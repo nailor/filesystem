@@ -104,9 +104,9 @@ API recommendations for future file systems.
 Those methods are not mandatory, but implemented for the default file
 system in the reference implementation:
 
-* stat
-* readlink, symlink
-* chown, chmod, lchown, lstat
+* stat, lstat
+* readlink, symlink, islink
+* chown, chmod, lchown
 * access
 * major, minor
 * makedev, mkfifo, mknod

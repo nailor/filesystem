@@ -1,5 +1,6 @@
 import errno
 import os
+import stat
 
 from filesystem._base import (
     PathnameMixin,
@@ -62,6 +63,17 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
         """
         return os.stat(self._pathname)
 
+    def lstat(self):
+        return os.lstat(self._pathname)
+
+    def symlink(self, target):
+        """
+        let self become a symlink to target
+        """
+        if not hasattr(target, 'root') or self.root != target.root:
+            raise OSError(errno=errno.EXDEV)
+        os.symlink(self._pathname, target._pathname)
+
     def readlink(self):
         """
         Return the ``path`` as a string to which the link represented
@@ -72,7 +84,9 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
         """
         # TODO: do we care about ``os.readlink`` returning a string or
         # unicode string?
+        ## TODO: shouldn't we return a path object instead?
         return os.readlink(self._pathname)
+
 
     def unlink(self):
         """

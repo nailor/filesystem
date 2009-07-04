@@ -29,7 +29,7 @@ class OperationsMixin(object):
     def test_file(self):
         """
         Test that writes to a file and assert that it's a file and not
-        a dir or link.  Copied from test_stat.py
+        a dir or link.
         """
         # set up
         foo = self.path.child(u'foo')
@@ -40,16 +40,19 @@ class OperationsMixin(object):
         assert(p.exists() is True)
         assert(p.isfile() is True)
         assert(p.isdir() is False)
-        assert(p.islink() is False)
-        s = p.stat()
-        assert(stat.S_ISREG(s.st_mode) is True)
+        if hasattr(p, 'islink'):
+            assert(p.islink() is False)
+        if hasattr(p, 'stat'):
+            s = p.stat()
+            assert(stat.S_ISREG(s.st_mode) is True)
     
 
     def test_stat_missing_file(self):
         p = self.path.child('inexistent_file')
-        e = assert_raises(OSError, p.stat)
-        eq(e.errno, errno.ENOENT)
-        assert(p.exists() is False)
+        if hasattr(p, 'stat'):
+            e = assert_raises(OSError, p.stat)
+            eq(e.errno, errno.ENOENT)
+            assert(p.exists() is False)
 
     def test_join_with_leading_slash(self):
         """
@@ -74,9 +77,11 @@ class OperationsMixin(object):
         assert(p.exists() is True)
         assert(p.isdir() is True)
         assert(p.isfile() is False)
-        assert(p.islink() is False)
-        s = p.stat()
-        assert(stat.S_ISDIR(s.st_mode) is True)
+        if hasattr(p, 'islink'):
+            assert(p.islink() is False)
+        if hasattr(p, 'stat'):
+            s = p.stat()
+            assert(stat.S_ISDIR(s.st_mode) is True)
 
     def test_open_read_write(self):
         """
@@ -228,7 +233,8 @@ class OperationsMixin(object):
             f.write(bytestring)
         filesize = p.size()
         eq(filesize, 512)
-        eq(p.stat().st_size, 512)
+        if hasattr(p, 'stat'):
+            eq(p.stat().st_size, 512)
 
     def test_size_of_nonexisting_item(self):
         p = self.path.child(u"non-existent-item")
@@ -546,3 +552,48 @@ class OperationsMixin(object):
         ## TODO: we should do a complete test, just the reverse of
         ## further above - and it should be refactored to avoid
         ## duplicated code.
+
+
+class LinkOpMixin(object):
+    """
+    Test suite for file system objects that implements symlinks.
+
+    Subclass this and provide a setUp method that
+    gives it a empty self.path for every method
+    """
+    def test_symlink_readlink_islink(self):
+        p = self.path
+
+        ## create a mock file
+        src = p.child(u'testfile')
+        with src.open(u'w') as f:
+            f.write('bar')
+        ## create a symlink to it
+        src.symlink(p.child(u'testlink'))
+
+        ## assert that the link can be read
+        ## TODO: readlink seems to return a string instead of a path object
+        ## that's probably a bug?
+        eq(str(p.child(u'testlink').readlink()), str(p.child(u'testfile')))
+
+        ## assert that the file cannot be read as a link
+        assert_raises(OSError, p.child(u'testfile').readlink)
+
+        ## assert that islink works
+        assert(p.child(u'testfile').islink() is False)
+        assert(p.child(u'testlink').islink() is True)
+
+        ## assert that the link can be opened as a file,
+        ## and that we'll get the file content by doing so
+        with p.child(u'testlink').open(u'r') as f:
+            eq(f.read(3), u'bar')
+
+
+class PosixOpMixin(LinkOpMixin, OperationsMixin):
+    """
+    Mixin that tests all the stuff a posix file system should implement,
+    including ordinary file handling, symlinks, etc
+    (TODO - not complete)
+    """
+    ## TODO: write tests for all posix-required methods...
+    pass

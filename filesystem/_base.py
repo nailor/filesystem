@@ -46,7 +46,10 @@ class StatWrappersMixin(object):
     """
     If a class implements stat(), several other methods can be
     implemented as wrappers around stat.  Simply pull in this class to
-    get those implemented: exists, isdir, isfile, islink, size. 
+    get those implemented: exists, isdir, isfile, islink, size.  (islink
+    depends on lstat being implemented - assumes the file system does
+    not support symlinks and hence has no symlinks if lstat is not
+    implemented)
     """
     def size(self):
         """
@@ -100,7 +103,8 @@ class StatWrappersMixin(object):
 
         Raise an ``OSError`` if the operation fails.
         """
-        return stat.S_ISLNK(self.stat().st_mode)
+        return (hasattr(self, 'lstat') and 
+                stat.S_ISLNK(self.lstat().st_mode))
 
 
 class WalkMixin(object):
@@ -140,7 +144,7 @@ class WalkMixin(object):
         for d in subdirs:
             if (d.parent() != self or d == self):
                 raise InsecurePathError("walk is only allowed into subdirs")
-            if not d.islink():
+            if not (hasattr(d, 'islink') and d.islink()):
                 for w in d.walk(topdown):
                     yield w
         if not topdown:
