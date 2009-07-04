@@ -134,6 +134,7 @@ class path(filesystem.WalkMixin, filesystem.StatWrappersMixin, filesystem.Simple
             return self
         
         if not self._children.has_key(segment):
+            filesystem.raise_on_insecure_file_name(segment)
             child = self.__class__(name=segment, parent=self)
             self._children[segment] = child
             

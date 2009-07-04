@@ -24,6 +24,18 @@ class CrossDeviceRenameError(Exception):
     """
     pass
 
+## utility function for checking for safe file names.
+## TODO: should it be encapsulated within a class?
+def raise_on_insecure_file_name(name):
+    if u'/' in name:
+        raise InsecurePathError(
+            'child name contains directory separator')
+    # this may be too naive
+    if name == u'..':
+        raise InsecurePathError(
+            'child trying to climb out of directory')
+
+
 
 ## TODO: RFC: Is there any presedence for this naming convention?  As
 ## I understand it, "Mixin" means that this class can be mixed into
@@ -34,7 +46,10 @@ class StatWrappersMixin(object):
     """
     If a class implements stat(), several other methods can be
     implemented as wrappers around stat.  Simply pull in this class to
-    get those implemented: exists, isdir, isfile, islink, size. 
+    get those implemented: exists, isdir, isfile, islink, size.  (islink
+    depends on lstat being implemented - assumes the file system does
+    not support symlinks and hence has no symlinks if lstat is not
+    implemented)
     """
     def size(self):
         """
@@ -88,7 +103,8 @@ class StatWrappersMixin(object):
 
         Raise an ``OSError`` if the operation fails.
         """
-        return stat.S_ISLNK(self.stat().st_mode)
+        return (hasattr(self, 'lstat') and 
+                stat.S_ISLNK(self.lstat().st_mode))
 
 
 class WalkMixin(object):
@@ -128,7 +144,7 @@ class WalkMixin(object):
         for d in subdirs:
             if (d.parent() != self or d == self):
                 raise InsecurePathError("walk is only allowed into subdirs")
-            if not d.islink():
+            if not (hasattr(d, 'islink') and d.islink()):
                 for w in d.walk(topdown):
                     yield w
         if not topdown:
@@ -203,13 +219,7 @@ class PathnameMixin(object):
         """
         p = self
         for segment in segments:
-            if u'/' in segment:
-                raise InsecurePathError(
-                      'child name contains directory separator')
-            # this may be too naive
-            if segment == u'..':
-                raise InsecurePathError(
-                      'child trying to climb out of directory')
+            raise_on_insecure_file_name(segment)
             p = p.join(segment)
         return p
 

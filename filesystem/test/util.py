@@ -39,16 +39,19 @@ def find_test_name():
                 return its_self.moduleName
 
     i = 0
-    while True:
-        i += 1
-        frame = sys._getframe(i)
-        # kludge, hunt callers upwards until we find our nose
-        if (frame.f_code.co_varnames
-            and frame.f_code.co_varnames[0] == 'self'):
-            its_self = frame.f_locals['self']
-            name = get_nose_name(its_self)
-            if name is not None:
-                return name
+    try:
+        while True:
+            i += 1
+            frame = sys._getframe(i)
+            # kludge, hunt callers upwards until we find our nose
+            if (frame.f_code.co_varnames
+                and frame.f_code.co_varnames[0] == 'self'):
+                its_self = frame.f_locals['self']
+                name = get_nose_name(its_self)
+                if name is not None:
+                    return name
+    except ValueError:
+        return 'undefined'
 
 def maketemp():
     tmp = os.path.join(os.path.dirname(__file__), 'tmp')

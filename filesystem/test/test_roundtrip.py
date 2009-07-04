@@ -20,6 +20,9 @@ import filesystem
 
 import errno
 import stat
+import time
+import os
+import pwd
 
 class OperationsMixin(object):
     # the actual tests; subclass this and provide a setUp method that
@@ -29,7 +32,7 @@ class OperationsMixin(object):
     def test_file(self):
         """
         Test that writes to a file and assert that it's a file and not
-        a dir or link.  Copied from test_stat.py
+        a dir or link.
         """
         # set up
         foo = self.path.child(u'foo')
@@ -40,16 +43,19 @@ class OperationsMixin(object):
         assert(p.exists() is True)
         assert(p.isfile() is True)
         assert(p.isdir() is False)
-        assert(p.islink() is False)
-        s = p.stat()
-        assert(stat.S_ISREG(s.st_mode) is True)
+        if hasattr(p, 'islink'):
+            assert(p.islink() is False)
+        if hasattr(p, 'stat'):
+            s = p.stat()
+            assert(stat.S_ISREG(s.st_mode) is True)
     
 
     def test_stat_missing_file(self):
         p = self.path.child('inexistent_file')
-        e = assert_raises(OSError, p.stat)
-        eq(e.errno, errno.ENOENT)
-        assert(p.exists() is False)
+        if hasattr(p, 'stat'):
+            e = assert_raises(OSError, p.stat)
+            eq(e.errno, errno.ENOENT)
+            assert(p.exists() is False)
 
     def test_join_with_leading_slash(self):
         """
@@ -74,9 +80,11 @@ class OperationsMixin(object):
         assert(p.exists() is True)
         assert(p.isdir() is True)
         assert(p.isfile() is False)
-        assert(p.islink() is False)
-        s = p.stat()
-        assert(stat.S_ISDIR(s.st_mode) is True)
+        if hasattr(p, 'islink'):
+            assert(p.islink() is False)
+        if hasattr(p, 'stat'):
+            s = p.stat()
+            assert(stat.S_ISDIR(s.st_mode) is True)
 
     def test_open_read_write(self):
         """
@@ -228,7 +236,8 @@ class OperationsMixin(object):
             f.write(bytestring)
         filesize = p.size()
         eq(filesize, 512)
-        eq(p.stat().st_size, 512)
+        if hasattr(p, 'stat'):
+            eq(p.stat().st_size, 512)
 
     def test_size_of_nonexisting_item(self):
         p = self.path.child(u"non-existent-item")
@@ -546,3 +555,153 @@ class OperationsMixin(object):
         ## TODO: we should do a complete test, just the reverse of
         ## further above - and it should be refactored to avoid
         ## duplicated code.
+
+
+class LinkOpMixin(object):
+    """
+    Test suite for file system objects that implements symlinks.
+
+    Subclass this and provide a setUp method that
+    gives it a empty self.path for every method
+    """
+    def test_symlink_readlink_islink(self):
+        p = self.path
+
+        ## create a mock file
+        src = p.child(u'testfile')
+        with src.open(u'w') as f:
+            f.write('bar')
+        ## create a symlink to it
+        src.symlink(p.child(u'testlink'))
+
+        ## assert that the link can be read
+        ## TODO: readlink seems to return a string instead of a path object
+        ## that's probably a bug?
+        eq(str(p.child(u'testlink').readlink()), str(p.child(u'testfile')))
+
+        ## assert that the file cannot be read as a link
+        assert_raises(OSError, p.child(u'testfile').readlink)
+
+        ## assert that islink works
+        assert(p.child(u'testfile').islink() is False)
+        assert(p.child(u'testlink').islink() is True)
+
+        ## assert that the link can be opened as a file,
+        ## and that we'll get the file content by doing so
+        with p.child(u'testlink').open(u'r') as f:
+            eq(f.read(3), u'bar')
+
+
+class PosixOpMixin(LinkOpMixin, OperationsMixin):
+    """
+    Mixin that tests all the stuff a posix file system should implement,
+    including ordinary file handling, symlinks, etc
+    (TODO - not complete)
+    """
+    def test_methods_exists(self):
+        for method in ('stat', 'lstat', 'readlink', 'symlink', 
+                       'islink', 'chown'):
+            ## TODO: add .... 'chmod', 'lchown', 'access', 'major', 'minor', 'makedev', 'mkfifo', 'mknod', 'utime')
+            assert(hasattr(self.path, method))
+            assert(hasattr(getattr(self.path, method), '__call__'))
+
+    def _verify_stats(self, stats):
+        """common tests from test_stat and test_lstat"""
+        ## read mode for user ... is this reasonable to assert?
+        assert(stats.st_mode & 0400)
+        
+        
+        ## testing st_ino and st_dev - they should exist
+        stats.st_ino
+        stats.st_dev
+        
+        ## number of hard links to this inode
+        eq(stats.st_nlink, 1)
+        
+        ## ownership should match our efficient uid
+        eq(stats.st_uid, os.geteuid())
+        ## don't assume too much about the gid through
+        stats.st_gid
+
+        ## this assert is a bit unstable - of course the clock can be
+        ## modified while we're running tests, or we could be paused
+        ## or running pdb or whatever ... but 12 seconds ought to be
+        ## sufficient.
+        assert(time.time()-stats.st_mtime<12)
+        assert(time.time()-stats.st_ctime<12)
+        ## is this a sane assert?
+        eq(stats.st_mtime, stats.st_ctime)
+
+        ## I wouldn't like to add sleeps into the test ... 
+        ## but we ought to test whether st_mtime, st_ctime and st_atime is
+        ## updated correctly.  Well, let's do that in the utime test ...
+
+        ## the stat should be available both as a dict and a list.  I
+        ## think the positions and number of elements are fixed in the
+        ## standard.
+        eq(len(stats), 10)
+        eq(stats[0], stats.st_mode)
+        eq(stats[6], stats.st_size)
+
+    def test_stat(self):
+        ## create a file to play with
+        file = self.path.child(u'stat_test_file')
+        with file.open(u'w') as f:
+            f.write(u'foo')
+        stats = file.stat()
+
+        ## testing st_mode
+        assert(stat.S_ISREG(stats.st_mode))
+        assert(file.isfile())
+
+        ## size should be 3
+        eq(stats.st_size, file.size())
+        eq(stats.st_size, 3)
+        
+        ## for a non-link, lstat and stat should yield same result
+        eq(stats, file.lstat())
+
+        self._verify_stats(stats)
+        
+    def test_lstat(self):
+        link = self.path.child(u'stat_test_link')
+        self.path.child(u'doesnexist').symlink(link)
+        lstats = link.lstat()
+        assert(stat.S_ISLNK(lstats.st_mode))
+        ## assert a "sane" size (is this sane?)
+        assert(lstats.st_size>0 and lstats.st_size<1024)
+        
+        self._verify_stats(lstats)
+
+        assert_raises(OSError, link.stat)
+
+    def test_chown(self):
+        ## create a file
+        file = self.path.child(u'chown_test_file')
+        with file.open(u'w') as f:
+            f.write(u'foo')
+
+        ## chown should accept both numeric and string arguments
+        ## ... batteries included!
+        ## gid is optional
+
+        ## should pass without problems, changing nothing
+        file.chown(os.geteuid())
+        file.chown(os.getlogin())
+
+        ## should give permission denied unless the test is run as
+        ## root (which you probably wouldn't like to do anyway)
+        if os.geteuid():
+            assert_raises(OSError, file.chown, 0)
+        else:
+            ## But, to properly test this one actually needs to run as root
+            ## TODO: check if the nobody user exist
+            file.chown('nobody')
+            eq(file.stat().st_uid, pwd.getpwnam('nobody').pw_uid)
+
+        ## TODO: forgotten to test changing of group ...
+        ## TODO: test lchown
+
+
+    ## TODO: write tests for all the other posix-required methods...
+

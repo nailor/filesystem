@@ -10,9 +10,3 @@ class InMem_Tests(test_roundtrip.OperationsMixin):
         assert not self.path.exists()
         self.path.mkdir(create_parents=True, may_exist=True)
         assert self.path.exists()
-
-    def test_child_bad_slash(self):
-        raise nose.SkipTest('TODO temporary pardon')
-
-    def test_child_bad_dotdot(self):
-        raise nose.SkipTest('TODO temporary pardon')

@@ -11,5 +11,6 @@ from filesystem._base import (
     StatWrappersMixin,
     InsecurePathError,
     CrossDeviceRenameError,
+    raise_on_insecure_file_name
     )
 

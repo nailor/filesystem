@@ -1,5 +1,8 @@
 import errno
 import os
+import stat
+import pwd
+import grp
 
 from filesystem._base import (
     PathnameMixin,
@@ -62,6 +65,19 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
         """
         return os.stat(self._pathname)
 
+    def lstat(self):
+        return os.lstat(self._pathname)
+
+    def symlink(self, target):
+        """
+        let self be symlinked to target (RFC: the direction of symlink
+        is not completely intuitive - maybe we should rename it to
+        symlink_to and/or symlink_from?)
+        """
+        if not hasattr(target, 'root') or self.root != target.root:
+            raise OSError(errno=errno.EXDEV)
+        os.symlink(self._pathname, target._pathname)
+
     def readlink(self):
         """
         Return the ``path`` as a string to which the link represented
@@ -72,7 +88,28 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
         """
         # TODO: do we care about ``os.readlink`` returning a string or
         # unicode string?
+        ## TODO: shouldn't we return a path object instead?
         return os.readlink(self._pathname)
+
+    def _chown(self, new_user, new_group, chown_method):
+        ## RFC: I think we should have this "batteries included" logics,
+        ## or it will be quite hard to use chown - but this should
+        ## probably be moved to a helper class.
+        if new_group is None:
+            new_group = self.stat().st_gid
+        if new_user is None:
+            new_user = self.stat().st_uid
+        if not isinstance(new_user, int):
+            new_user = pwd.getpwnam(new_user).pw_uid
+        if not isinstance(new_group, int):
+            new_group = grp.getgrnam(new_group).gr_gid
+        chown_method(self._pathname, new_user, new_group)
+
+    def chown(self, new_user=None, new_group=None):
+        return self._chown(new_user, new_group, os.chown)
+
+    def lchown(self, new_user=None, new_group=None):
+        return self._chown(new_user, new_group, os.lchown)
 
     def unlink(self):
         """

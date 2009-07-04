@@ -14,5 +14,3 @@ class Copyonwrite_Tests(test_roundtrip.OperationsMixin):
         self.path = filesystem.copyonwrite.path(real_path)
         assert self.path.exists()
 
-    def test_child_bad_slash(self):
-        raise nose.SkipTest('TODO temporary pardon')
