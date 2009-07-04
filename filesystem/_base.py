@@ -24,6 +24,18 @@ class CrossDeviceRenameError(Exception):
     """
     pass
 
+## utility function for checking for safe file names.
+## TODO: should it be encapsulated within a class?
+def raise_on_insecure_file_name(name):
+    if u'/' in name:
+        raise InsecurePathError(
+            'child name contains directory separator')
+    # this may be too naive
+    if name == u'..':
+        raise InsecurePathError(
+            'child trying to climb out of directory')
+
+
 
 ## TODO: RFC: Is there any presedence for this naming convention?  As
 ## I understand it, "Mixin" means that this class can be mixed into
@@ -203,13 +215,7 @@ class PathnameMixin(object):
         """
         p = self
         for segment in segments:
-            if u'/' in segment:
-                raise InsecurePathError(
-                      'child name contains directory separator')
-            # this may be too naive
-            if segment == u'..':
-                raise InsecurePathError(
-                      'child trying to climb out of directory')
+            raise_on_insecure_file_name(segment)
             p = p.join(segment)
         return p
 
