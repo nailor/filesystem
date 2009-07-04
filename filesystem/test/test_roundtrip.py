@@ -700,6 +700,7 @@ class PosixOpMixin(LinkOpMixin, OperationsMixin):
             eq(file.stat().st_uid, pwd.getpwnam('nobody').pw_uid)
 
         ## TODO: forgotten to test changing of group ...
+        ## TODO: test lchown
 
 
     ## TODO: write tests for all the other posix-required methods...
