@@ -110,7 +110,6 @@ system in the reference implementation:
 * access
 * major, minor
 * makedev, mkfifo, mknod
-* symlink
 * utime
 * others?
 

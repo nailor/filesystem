@@ -20,6 +20,9 @@ import filesystem
 
 import errno
 import stat
+import time
+import os
+import pwd
 
 class OperationsMixin(object):
     # the actual tests; subclass this and provide a setUp method that
@@ -595,5 +598,106 @@ class PosixOpMixin(LinkOpMixin, OperationsMixin):
     including ordinary file handling, symlinks, etc
     (TODO - not complete)
     """
-    ## TODO: write tests for all posix-required methods...
-    pass
+    def test_methods_exists(self):
+        for method in ('stat', 'lstat', 'readlink', 'symlink', 'islink'):
+            ## TODO: add .... 'chown', 'chmod', 'lchown', 'access', 'major', 'minor', 'makedev', 'mkfifo', 'mknod', 'utime')
+            assert(hasattr(self.path, method))
+            assert(hasattr(getattr(self.path, method), '__call__'))
+
+    def _verify_stats(self, stats):
+        """common tests from test_stat and test_lstat"""
+        ## read mode for user ... is this reasonable to assert?
+        assert(stats.st_mode & 0400)
+        
+        
+        ## testing st_ino and st_dev - they should exist
+        stats.st_ino
+        stats.st_dev
+        
+        ## number of hard links to this inode
+        eq(stats.st_nlink, 1)
+        
+        ## ownership should match our efficient uid
+        eq(stats.st_uid, os.geteuid())
+        ## don't assume too much about the gid through
+        stats.st_gid
+
+        ## this assert is a bit unstable - of course the clock can be
+        ## modified while we're running tests, or we could be paused
+        ## or running pdb or whatever ... but 12 seconds ought to be
+        ## sufficient.
+        assert(time.time()-stats.st_mtime<12)
+        assert(time.time()-stats.st_ctime<12)
+        ## is this a sane assert?
+        eq(stats.st_mtime, stats.st_ctime)
+
+        ## I wouldn't like to add sleeps into the test ... 
+        ## but we ought to test whether st_mtime, st_ctime and st_atime is
+        ## updated correctly.  Well, let's do that in the utime test ...
+
+        ## the stat should be available both as a dict and a list.  I
+        ## think the positions and number of elements are fixed in the
+        ## standard.
+        eq(len(stats), 10)
+        eq(stats[0], stats.st_mode)
+        eq(stats[6], stats.st_size)
+
+    def test_stat(self):
+        ## create a file to play with
+        file = self.path.child(u'stat_test_file')
+        with file.open(u'w') as f:
+            f.write(u'foo')
+        stats = file.stat()
+
+        ## testing st_mode
+        assert(stat.S_ISREG(stats.st_mode))
+        assert(file.isfile())
+
+        ## size should be 3
+        eq(stats.st_size, file.size())
+        eq(stats.st_size, 3)
+        
+        ## for a non-link, lstat and stat should yield same result
+        eq(stats, file.lstat())
+
+        self._verify_stats(stats)
+        
+    def test_lstat(self):
+        link = self.path.child(u'stat_test_link')
+        self.path.child(u'doesnexist').symlink(link)
+        lstats = link.lstat()
+        assert(stat.S_ISLNK(lstats.st_mode))
+        ## assert a "sane" size (is this sane?)
+        assert(lstats.st_size>0 and lstats.st_size<1024)
+        
+        self._verify_stats(lstats)
+
+        assert_raises(OSError, link.stat)
+
+    def test_chown(self):
+        ## create a file
+        file = self.path.child(u'chown_test_file')
+        with file.open(u'w') as f:
+            f.write(u'foo')
+
+        ## chown should accept both numeric and string arguments
+        ## ... batteries included!
+        ## gid is optional
+
+        ## should pass without problems, changing nothing
+        file.chown(os.geteuid())
+        file.chown(os.getlogin())
+
+        ## should give permission denied unless the test is run as
+        ## root (which you probably wouldn't like to do anyway)
+        if os.geteuid():
+            assert_raises(OSError, file.chown, 0)
+        else:
+            ## But, to properly test this one actually needs to run as root
+            ## TODO: check if the nobody user exist
+            file.chown('nobody')
+            eq(file.stat().st_uid, pwd.getpwnam('nobody').pw_uid)
+
+
+    ## TODO: write tests for all the other posix-required methods...
+

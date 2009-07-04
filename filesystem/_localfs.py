@@ -1,6 +1,8 @@
 import errno
 import os
 import stat
+import pwd
+import grp
 
 from filesystem._base import (
     PathnameMixin,
@@ -68,7 +70,9 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
 
     def symlink(self, target):
         """
-        let self become a symlink to target
+        let self be symlinked to target (RFC: the direction of symlink
+        is not completely intuitive - maybe we should rename it to
+        symlink_to and/or symlink_from?)
         """
         if not hasattr(target, 'root') or self.root != target.root:
             raise OSError(errno=errno.EXDEV)
@@ -87,6 +91,17 @@ class path(PathnameMixin, WalkMixin, StatWrappersMixin):
         ## TODO: shouldn't we return a path object instead?
         return os.readlink(self._pathname)
 
+    def chown(self, new_user, new_group=None):
+        ## RFC: I want the methods here to be "batteries included", 
+        ## but at the other hand this extra logic makes it heavier
+        ## to make more file systems.
+        if new_group is None:
+            new_group = self.stat().st_gid
+        if not isinstance(new_user, int):
+            new_user = pwd.getpwnam(new_user).pw_uid
+        if not isinstance(new_group, int):
+            new_group = grp.getgrnam(new_group).gr_gid
+        os.chown(self._pathname, new_user, new_group)
 
     def unlink(self):
         """
