@@ -7,6 +7,8 @@ any reasonably normal fs API implementation.
 
 from __future__ import with_statement
 
+import nose
+
 from nose.tools import (
     eq_ as eq,
     )
@@ -23,31 +25,50 @@ import stat
 import time
 import os
 import pwd
+import grp
 
 class OperationsMixin(object):
     # the actual tests; subclass this and provide a setUp method that
     # gives it a empty self.path for every method
 
+    def _create_file(self, name=u'foo', content='bar'):
+        """
+        utility function - creates a file and writes some data to it.
+        """
+        file = self.path.child(name)
+        with file.open(u'w') as f:
+            f.write(content)
+
+        return file
+        
 
     def test_file(self):
         """
         Test that writes to a file and assert that it's a file and not
         a dir or link.
         """
-        # set up
-        foo = self.path.child(u'foo')
-        with foo.open(u'w') as f:
-            f.write('bar')
-        # test
+        # set foo to a path object pointing to a new file with content "bar"
+        foo = self._create_file('foo', 'bar')
+        # test that the file can be accessed
         p = self.path.child(u'foo')
+
         assert(p.exists() is True)
         assert(p.isfile() is True)
         assert(p.isdir() is False)
+
+        assert(foo.exists() is True)
+        assert(foo.isfile() is True)
+        assert(foo.isdir() is False)
+
+        ## TODO: equality is not part of the mandatory API?
+        eq(p, foo)
         if hasattr(p, 'islink'):
             assert(p.islink() is False)
+            assert(foo.islink() is False)
         if hasattr(p, 'stat'):
             s = p.stat()
             assert(stat.S_ISREG(s.st_mode) is True)
+            eq(foo.stat(), p.stat())
     
 
     def test_stat_missing_file(self):
@@ -95,9 +116,7 @@ class OperationsMixin(object):
         """
         ## Make sure write-read is repeatable
         for dummy in (0,1):
-            p = self.path.child(u'foo')
-            with p.open(u'w') as f:
-                f.write('barfoo')
+            p = self._create_file(u'foo', 'barfoo')
             with p.open() as f:
                 got = f.read(3)
                 eq(got, u'bar')
@@ -190,7 +209,8 @@ class OperationsMixin(object):
         with p1.open(u'w') as fw:
             with p2.open() as fr:
                 fw.write('barfoo')
-                fw.flush()
+                if hasattr(fw, 'flush'):
+                    fw.flush()
                 got = fr.read(3)
                 eq(got, u'bar')
 
@@ -370,9 +390,7 @@ class OperationsMixin(object):
         eq(got, u'bar')
 
     def test_unlink_simple(self):
-        a = self.path.child(u'foo')
-        with a.open(u'w') as f:
-            f.write('bar')
+        a = self._create_file()
         eq(list(self.path), [a])
         a.unlink()
         eq(list(self.path), [])
@@ -386,9 +404,7 @@ class OperationsMixin(object):
         eq(e.errno, errno.ENOENT)
 
     def test_remove_simple(self):
-        a = self.path.child(u'foo')
-        with a.open(u'w') as f:
-            f.write('bar')
+        a = self._create_file()
         eq(list(self.path), [a])
         a.remove()
         eq(list(self.path), [])
@@ -446,9 +462,7 @@ class OperationsMixin(object):
         eq(self.path.child(u'foo').exists(), False)
 
     def test_rmdir_bad_notdir(self):
-        p = self.path.child(u'foo')
-        with p.open(u'w') as f:
-            f.write('bar')
+        p = self._create_file()
         e = assert_raises(
             OSError,
             p.rmdir,
@@ -557,7 +571,7 @@ class OperationsMixin(object):
         ## duplicated code.
 
 
-class LinkOpMixin(object):
+class LinkOpMixin(OperationsMixin):
     """
     Test suite for file system objects that implements symlinks.
 
@@ -568,9 +582,8 @@ class LinkOpMixin(object):
         p = self.path
 
         ## create a mock file
-        src = p.child(u'testfile')
-        with src.open(u'w') as f:
-            f.write('bar')
+        src = self._create_file(u'testfile', 'bar')
+
         ## create a symlink to it
         src.symlink(p.child(u'testlink'))
 
@@ -592,7 +605,7 @@ class LinkOpMixin(object):
             eq(f.read(3), u'bar')
 
 
-class PosixOpMixin(LinkOpMixin, OperationsMixin):
+class PosixOpMixin(LinkOpMixin):
     """
     Mixin that tests all the stuff a posix file system should implement,
     including ordinary file handling, symlinks, etc
@@ -645,9 +658,7 @@ class PosixOpMixin(LinkOpMixin, OperationsMixin):
 
     def test_stat(self):
         ## create a file to play with
-        file = self.path.child(u'stat_test_file')
-        with file.open(u'w') as f:
-            f.write(u'foo')
+        file = self._create_file(u'stat_test_file')
         stats = file.stat()
 
         ## testing st_mode
@@ -675,33 +686,105 @@ class PosixOpMixin(LinkOpMixin, OperationsMixin):
 
         assert_raises(OSError, link.stat)
 
-    def test_chown(self):
-        ## create a file
-        file = self.path.child(u'chown_test_file')
-        with file.open(u'w') as f:
-            f.write(u'foo')
+    def test_chown_lchown_1(self):
+        ## create a file and a link
+        file = self._create_file(u'chown_test_file1')
+        link = self.path.child('chown_test_link1')
+        file.symlink(link)
 
         ## chown should accept both numeric and string arguments
         ## ... batteries included!
         ## gid is optional
 
         ## should pass without problems, changing nothing
-        file.chown(os.geteuid())
-        file.chown(os.getlogin())
+        ## (assuming group ownership is the same for the file and the link)
+        for chown in (file.chown, file.lchown, link.chown, link.lchown):
+            chown(os.geteuid())
+            chown(os.getlogin())
+            chown(new_group=file.stat().st_gid)
+            chown(new_group=grp.getgrgid(file.stat().st_gid).gr_name)
+            chown(os.geteuid(), file.stat().st_gid)
+            chown(os.getlogin(), grp.getgrgid(file.stat().st_gid).gr_name)
 
-        ## should give permission denied unless the test is run as
-        ## root (which you probably wouldn't like to do anyway)
+    def test_chown_lchown_root(self):
+        ## this test has some requirements ...
         if os.geteuid():
-            assert_raises(OSError, file.chown, 0)
-        else:
-            ## But, to properly test this one actually needs to run as root
-            ## TODO: check if the nobody user exist
-            file.chown('nobody')
-            eq(file.stat().st_uid, pwd.getpwnam('nobody').pw_uid)
+            raise nose.SkipTest("this test can only be run as root ... :/")
 
-        ## TODO: forgotten to test changing of group ...
-        ## TODO: test lchown
+        try:
+            pwd.getpwnam('nobody')
+        except KeyError:
+            raise nose.SkipTest("this test relies on user nobody to exist")
 
+        ## setup - create a file and a link
+        file = self._create_file(u'chown_test_file1')
+        link = self.path.child('chown_test_link1')
+        file.symlink(link)
+
+        ## Hm ... TODO: fix this neater, copy logics from the test_chown_lchown_group test
+        link.lchown(0)
+        link.chown('nobody')
+        eq(file.stat().st_uid, pwd.getpwnam('nobody').pw_uid)
+        eq(link.stat().st_uid, pwd.getpwnam('nobody').pw_uid)
+        eq(link.lstat().st_uid, 0)
+        link.chown(0)
+        eq(file.stat().st_uid, 0)
+        file.chown('nobody')
+        eq(file.stat().st_uid, pwd.getpwnam('nobody').pw_uid)
+        file.chown(0)
+        eq(file.stat().st_uid, 0)
+        link.lchown('nobody')
+        eq(file.stat().st_uid, 0)
+        eq(link.stat().st_uid, 0)
+        eq(link.lstat().st_uid, pwd.getpwnam('nobody').pw_uid)
+
+    def test_chown_lchown_group(self):
+        """user should be able to change group of file/link"""
+        
+        ## setup part 1, find two user group ids we can use
+        gids = os.getgroups()
+        if len(gids)<2:
+            raise SkipTest("need to be member of at least two groups to run this test")
+        ## setup, part 2 - create a file and a link
+        file = self._create_file(u'chown_test_file1')
+        link = self.path.child('chown_test_link1')
+        file.symlink(link)
+
+        ## helper function - check that file has gid0 and link has
+        ## gid1 or opposite
+        def _chk_grps(reverse=0):
+            eq(file.stat().st_gid, gids[reverse])
+            eq(link.stat().st_gid, gids[reverse])
+            eq(link.lstat().st_gid, gids[not reverse])
+
+        uid = os.geteuid()
+
+        ## setting file to gid0 and link to gid1
+        file.lchown(uid, gids[0])
+        link.lchown(uid, gids[1])
+        _chk_grps()
+        ## reversing
+        file.chown(uid, gids[1])
+        link.lchown(uid, gids[0])
+        _chk_grps(1)
+        ## setting link to gid0 and file to gid1
+        link.chown(uid, gids[0])
+        link.lchown(uid, gids[1])
+        _chk_grps(0)
+
+
+    def test_chown_lchown_raises_error(self):
+        ## create a file and a link
+        file = self._create_file(u'chown_test_file1')
+        link = self.path.child('chown_test_link1')
+        file.symlink(link)
+
+        if not os.geteuid():
+            raise nose.SkipTest("this test can not be run as root")
+
+        ## should give permission denied
+        assert_raises(OSError, file.chown, 0)
+        assert_raises(OSError, file.lchown, 0)
 
     ## TODO: write tests for all the other posix-required methods...
 
