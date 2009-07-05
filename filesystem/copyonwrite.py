@@ -14,7 +14,7 @@ class path(filesystem.multiplexing.path):
             self._bound = getattr(kwargs.get('parent',''), '_bind', None)
     
     def open(self, mode='r', *moreargs, **kwargs):
-        if mode == 'w':
+        if 'w' in mode:
             self.unbind()
         ## TODO: we don't have test code for this yet
         #elif mode == 'r+':

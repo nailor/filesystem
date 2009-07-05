@@ -100,7 +100,7 @@ def test_open_for_reading():
     tmp = maketemp()
     foo = os.path.join(tmp, u'foo')
     # write file with Python's standard API ...
-    with file(foo, 'w') as f:
+    with open(foo, 'w') as f:
         f.write('bar')
     # ... and read it back with our fs code
     p = filesystem.path(foo)
@@ -116,6 +116,6 @@ def test_open_for_writing():
     with p.open('w') as f:
         f.write('bar')
     # read back in and compare
-    with file(foo) as f:
+    with open(foo) as f:
         got = f.read()
     eq(got, 'bar')
